@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JatraSathi Enterprise Admin & Support Console 1.2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root {
+      --bg: #F1F5F9;
+      --surface: #FFFFFF;
+      --surface-alt: #F8FAFC;
+      --text: #0F172A;
+      --text-secondary: #334155;
+      --text-muted: #64748B;
+      --border: #CBD5E1;
+      --border-subtle: #E2E8F0;
+      --primary: #059669;
+      --primary-hover: #047857;
+      --primary-soft: #ECFDF5;
+      --primary-border: #6EE7B7;
+      --danger: #DC2626;
+      --danger-soft: #FEF2F2;
+      --danger-border: #FCA5A5;
+      --warn: #D97706;
+      --warn-soft: #FFFBEB;
+      --warn-border: #FCD34D;
+      --info: #2563EB;
+      --info-soft: #EFF6FF;
+      --info-border: #93C5FD;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.05);
+    }
+
+    body.dark {
+      --bg: #090D16;
+      --surface: #111827;
+      --surface-alt: #1E293B;
+      --text: #FFFFFF;
+      --text-secondary: #E2E8F0;
+      --text-muted: #94A3B8;
+      --border: #334155;
+      --border-subtle: #1E293B;
+      --primary: #10B981;
+      --primary-hover: #059669;
+      --primary-soft: rgba(16, 185, 129, 0.14);
+      --primary-border: rgba(16, 185, 129, 0.4);
+      --danger: #F87171;
+      --danger-soft: rgba(239, 68, 68, 0.15);
+      --danger-border: rgba(239, 68, 68, 0.45);
+      --warn: #FBBF24;
+      --warn-soft: rgba(245, 158, 11, 0.15);
+      --warn-border: rgba(245, 158, 11, 0.45);
+      --info: #60A5FA;
+      --info-soft: rgba(59, 130, 246, 0.15);
+      --info-border: rgba(59, 130, 246, 0.45);
+      --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
+      --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Hind Siliguri', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    svg.icon {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    /* Top Enterprise Bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1.5px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: var(--primary);
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: inline-block;
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      border-color: var(--text-muted);
+      background: var(--surface-alt);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #FFFFFF;
+      border-color: var(--danger);
+    }
+
+    .btn-danger:hover {
+      opacity: 0.92;
+      background: var(--danger);
+    }
+
+    .btn-info {
+      background: var(--info);
+      color: #FFFFFF;
+      border-color: var(--info);
+    }
+
+    .btn-info:hover {
+      opacity: 0.92;
+      background: var(--info);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px 18px 60px;
+    }
+
+    /* Interactive KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .kpi-card.active-kpi {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-soft);
+    }
+
+    .kpi-card.danger-kpi:hover,
+    .kpi-card.danger-kpi.active-kpi {
+      border-color: var(--danger);
+    }
+
+    .kpi-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .kpi-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .kpi-val {
+      font-family: 'Inter', 'Hind Siliguri', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.15;
+      margin-bottom: 4px;
+    }
+
+    .kpi-foot {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Segmented Navigation Bar */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    .nav-tab {
+      padding: 10px 16px;
+      border-radius: 8px 8px 0 0;
+      border: 1.5px solid transparent;
+      border-bottom: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s;
+    }
+
+    .nav-tab:hover {
+      color: var(--text);
+      background: var(--surface-alt);
+    }
+
+    .nav-tab.active {
+      background: var(--surface);
+      color: var(--primary);
+      border-color: var(--border);
+      position: relative;
+      bottom: -1.5px;
+      padding-bottom: 11.5px;
+    }
+
+    .nav-count {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--surface-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .nav-tab.active .nav-count {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border-color: var(--primary-border);
+    }
+
+    /* Filter & Search Toolbar */
+    .toolbar {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .input, select {
+      background: var(--surface-alt);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+      padding: 9px 13px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .input:focus, select:focus {
+      border-color: var(--primary);
+      background: var(--surface);
+    }
+
+    /* Level Folders Grid (For Partner Levels) */
+    .folder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .folder-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .folder-card:hover {
+      border-color: var(--primary);
+    }
+
+    .folder-card.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+
+    .folder-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .folder-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Clean Enterprise Trip Row Card */
+    .list-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .trip-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .trip-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .trip-card.locked-border {
+      border-left: 5px solid var(--danger);
+    }
+
+    .trip-card.live-border {
+      border-left: 5px solid var(--info);
+    }
+
+    .trip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 14px;
+    }
+
+    .trip-meta-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .trip-service-name {
+      font-size: 17.5px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .trip-timestamps {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .fare-box {
+      background: var(--primary-soft);
+      border: 1.5px solid var(--primary-border);
+      border-radius: 10px;
+      padding: 8px 16px;
+      text-align: right;
+      min-width: 145px;
+    }
+
+    .fare-box .fare-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .fare-box .fare-val {
+      font-family: 'Inter', 'Hind Siliguri', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.15;
+    }
+
+    .fare-box .fare-split {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .trip-columns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .col-panel {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .col-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .data-title {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .data-sub {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .route-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .route-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .route-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .dot-pickup { background: var(--primary); }
+    .dot-dest { background: var(--danger); }
+
+    .kv-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 3px 0;
+      color: var(--text-secondary);
+    }
+
+    .kv-val {
+      font-family: 'Inter', 'Hind Siliguri', sans-serif;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .code-tag {
+      font-family: 'Inter', monospace;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .trip-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* Status Badges (No Emojis) */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    .pill-success {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid var(--primary-border);
+    }
+
+    .pill-danger {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+
+    .pill-warn {
+      background: var(--warn-soft);
+      color: var(--warn);
+      border: 1px solid var(--warn-border);
+    }
+
+    .pill-info {
+      background: var(--info-soft);
+      color: var(--info);
+      border: 1px solid var(--info-border);
+    }
+
+    /* Partner / Customer Grid */
+    .user-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 14px;
+    }
+
+    .user-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 13, 22, 0.72);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--surface);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 920px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1.5px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    #tripLiveMap {
+      width: 100%;
+      height: 300px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      margin-bottom: 16px;
+      z-index: 1;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 2000;
+      background: var(--primary);
+      color: #FFFFFF;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      .topbar { padding: 12px 14px; }
+      .container { padding: 14px 10px 50px; }
+      .user-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Enterprise Header -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">JS</div>
+      <div>
+        <div class="brand-title">যাত্রাসাথী অ্যাডমিন ও সাপোর্ট কনসোল ১.২</div>
+        <div class="brand-subtitle">
+          <span class="status-dot"></span>
+          <span id="roleStatusText">সুপার অ্যাডমিন মোড (সম্পূর্ণ নিয়ন্ত্রণ)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="top-controls">
+      <!-- Role Switcher for Owner vs Office Support Staff -->
+      <select id="roleModeSelect" onchange="changeAccessRole(this.value)" title="অ্যাক্সেস মোড নির্বাচন করুন">
+        <option value="super_admin">অ্যাক্সেস: সুপার অ্যাডমিন (মালিক)</option>
+        <option value="support_staff">অ্যাক্সেস: অফিস সাপোর্ট টিম (সীমিত)</option>
+      </select>
+
+      <button class="btn" id="themeBtn" onclick="toggleTheme()">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <span id="themeBtnText">ডার্ক মোড</span>
+      </button>
+
+      <button class="btn btn-primary" onclick="fetchAllData()">
+        <svg class="icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <span>রিফ্রেশ</span>
+      </button>
+
+      <a href="index.html" class="btn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>APK হাব</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Clickable KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card" id="kpiCardBookings" onclick="switchView('all_bookings')">
+        <div class="kpi-top">
+          <span class="kpi-label">মোট বুকিং সংখ্যা</span>
+          <svg class="icon" style="color: var(--text-muted);" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="kpi-val" id="kpiTotalTrips">0</div>
+        <div class="kpi-foot">
+          <span id="kpiPendingSub">পেন্ডিং: 0 টি</span>
+          <span style="color: var(--primary);">ক্লিক করে দেখুন &rarr;</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" id="kpiCardLive" onclick="switchView('live_trips')">
+        <div class="kpi-top">
+          <span class="kpi-label">লাইভ চলমান ট্রিপ</span>
+          <svg class="icon" style="color: var(--info);" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+        </div>
+        <div class="kpi-val" style="color: var(--info);" id="kpiLiveTrips">0</div>
+        <div class="kpi-foot">
+          <span>ম্যাপ ট্র্যাকিং সচল</span>
+          <span style="color: var(--info);">ক্লিক করে দেখুন &rarr;</span>
+        </div>
+      </div>
+
+      <div class="kpi-card danger-kpi" id="kpiCardLocked" onclick="switchView('locked_partners')">
+        <div class="kpi-top">
+          <span class="kpi-label">বকেয়া লক সাথী</span>
+          <svg class="icon" style="color: var(--danger);" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="kpi-val" style="color: var(--danger);" id="kpiUnpaidLocks">0</div>
+        <div class="kpi-foot">
+          <span>কমিশন বকেয়া লকড</span>
+          <span style="color: var(--danger);">তালিকা দেখুন &rarr;</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" id="kpiCardCompleted" onclick="switchView('completed_trips')">
+        <div class="kpi-top">
+          <span class="kpi-label">মোট সম্পন্ন ভাড়া</span>
+          <svg class="icon" style="color: var(--primary);" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="kpi-val" style="color: var(--primary);" id="kpiGrossFare">৳0</div>
+        <div class="kpi-foot">
+          <span id="kpiCompletedSub">সম্পন্ন: 0 টি</span>
+          <span style="color: var(--primary);">ক্লিক করে দেখুন &rarr;</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" id="kpiCardPartners" onclick="switchView('partner_levels')">
+        <div class="kpi-top">
+          <span class="kpi-label">সাথী ও লেভেল ফোল্ডার</span>
+          <svg class="icon" style="color: var(--text-muted);" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="kpi-val" id="kpiPartnersCount">0</div>
+        <div class="kpi-foot">
+          <span id="kpiCustomersSub">যাত্রী: 0 জন</span>
+          <span style="color: var(--primary);">লেভেল কন্ট্রোল &rarr;</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Separated Navigation Tabs (No Emojis) -->
+    <div class="nav-tabs" id="mainNavTabs">
+      <button class="nav-tab active" data-view="all_bookings" onclick="switchView('all_bookings')">
+        <span>সব বুকিং</span>
+        <span class="nav-count" id="cnt-all_bookings">0</span>
+      </button>
+      <button class="nav-tab" data-view="live_trips" onclick="switchView('live_trips')">
+        <span>লাইভ চলমান</span>
+        <span class="nav-count" id="cnt-live_trips">0</span>
+      </button>
+      <button class="nav-tab" data-view="pending_trips" onclick="switchView('pending_trips')">
+        <span>পেন্ডিং বুকিং</span>
+        <span class="nav-count" id="cnt-pending_trips">0</span>
+      </button>
+      <button class="nav-tab" data-view="completed_trips" onclick="switchView('completed_trips')">
+        <span>সম্পন্ন ট্রিপ</span>
+        <span class="nav-count" id="cnt-completed_trips">0</span>
+      </button>
+      <button class="nav-tab" data-view="cancelled_trips" onclick="switchView('cancelled_trips')">
+        <span>বাতিল ট্রিপ</span>
+        <span class="nav-count" id="cnt-cancelled_trips">0</span>
+      </button>
+      <button class="nav-tab" data-view="locked_partners" onclick="switchView('locked_partners')">
+        <span>বকেয়া লক সাথী</span>
+        <span class="nav-count" id="cnt-locked_partners" style="color: var(--danger);">0</span>
+      </button>
+      <button class="nav-tab" data-view="partner_levels" onclick="switchView('partner_levels')">
+        <span>সাথী ও লেভেল ফোল্ডার</span>
+        <span class="nav-count" id="cnt-partner_levels">0</span>
+      </button>
+      <button class="nav-tab" data-view="customers" onclick="switchView('customers')">
+        <span>যাত্রী তালিকা</span>
+        <span class="nav-count" id="cnt-customers">0</span>
+      </button>
+    </div>
+
+    <!-- Search & Action Bar -->
+    <div class="toolbar">
+      <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 260px;">
+        <svg class="icon" style="color: var(--text-muted);" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="globalSearch" class="input" style="flex: 1;"
+          placeholder="নাম, মোবাইল নম্বর, পিকআপ, গন্তব্য, ওটিপি বা TrxID দিয়ে খুঁজুন..."
+          oninput="renderActiveView()" />
+      </div>
+      <div id="viewContextTitle" style="font-size: 14px; font-weight: 700; color: var(--text-secondary);"></div>
+    </div>
+
+    <!-- Partner Level Folders Bar (Only shown inside 'partner_levels' view) -->
+    <div id="levelFoldersBar" class="folder-grid" style="display: none;"></div>
+
+    <!-- Main Dynamic Content Container -->
+    <div id="mainContentArea"></div>
+  </main>
+
+  <!-- TRIP DETAILS & LIVE MAP MODAL -->
+  <div class="modal-backdrop" id="tripDetailModal" onclick="if(event.target===this) closeTripModal()">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTripTitle" style="font-size: 20px; font-weight: 700;">ট্রিপের বিস্তারিত ও লাইভ ম্যাপ</h2>
+          <div id="modalTripSub" style="font-size: 13.5px; color: var(--text-secondary); font-weight: 600; margin-top: 4px;"></div>
+        </div>
+        <button class="btn btn-danger" onclick="closeTripModal()">বন্ধ করুন</button>
+      </div>
+
+      <div id="routeMetricsBar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:var(--surface-alt); border:1.5px solid var(--border); border-radius:10px; padding:10px 14px; margin-bottom:12px; font-size:13.5px; font-weight:700;">
+        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+          <span style="display:inline-flex; align-items:center; gap:6px;"><span class="route-dot dot-pickup" style="margin:0;"></span> পিকআপ পয়েন্ট</span>
+          <span style="display:inline-flex; align-items:center; gap:6px;"><span class="route-dot dot-dest" style="margin:0;"></span> গন্তব্য পয়েন্ট</span>
+          <span id="liveGpsStatusText" style="color:var(--info);"></span>
+        </div>
+        <div id="roadDistanceBadge" style="color:var(--primary);">সড়কপথের রুট লোড হচ্ছে...</div>
+      </div>
+
+      <div id="tripLiveMap"></div>
+      <div id="modalTripBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toastBox"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://ybvvpnmcoygwkfanafkd.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlidnZwbm1jb3lnd2tmYW5hZmtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5ODU3NTksImV4cCI6MjEwMjU2MTc1OX0.NX00YxSGkXpBxecl4i6oMZqFWmPQUCpXPv4cS7oWrlM';
+
+    let allTrips = [];
+    let allProfiles = [];
+    let profileMap = {};
+    let currentView = 'all_bookings';
+    let selectedPartnerLevelFolder = 'all'; // 'all', 0, 1, 2, 3, 4, 5
+    let accessRole = 'super_admin'; // 'super_admin' | 'support_staff'
+    let leafletMap = null;
+    let selectedModalTripId = null;
+
+    const RANK_SHARES = { 0: 30, 1: 45, 2: 55, 3: 65, 4: 70, 5: 75 };
+    const RANK_NAMES = {
+      5: 'Rank 0 — এলিট গার্ডিয়ান (৭৫% শেয়ার)',
+      4: 'Rank 1 — মাস্টার সাথী (৭০% শেয়ার)',
+      3: 'Rank 2 — সিনিয়র সাথী (৬৫% শেয়ার)',
+      2: 'Rank 3 — অভিজ্ঞ সাথী (৫৫% শেয়ার)',
+      1: 'Rank 4 — নিয়মিত সাথী (৪৫% শেয়ার)',
+      0: 'Rank 5 — প্রাথমিক সাথী (৩০% শেয়ার)'
+    };
+
+    const RANK_SHORT = {
+      5: 'Rank 0 (এলিট · ৭৫%)',
+      4: 'Rank 1 (মাস্টার · ৭০%)',
+      3: 'Rank 2 (সিনিয়র · ৬৫%)',
+      2: 'Rank 3 (অভিজ্ঞ · ৫৫%)',
+      1: 'Rank 4 (নিয়মিত · ৪৫%)',
+      0: 'Rank 5 (প্রাথমিক · ৩০%)'
+    };
+
+    const KNOWN_COORDS = [
+      { keys: ['বিমানবন্দর', 'airport', 'শাহজালাল', 'hsia'], lat: 23.8433, lng: 90.3978 },
+      { keys: ['কমলাপুর', 'kamalapur', 'রেল স্টেশন'], lat: 23.7315, lng: 90.4258 },
+      { keys: ['সদরঘাট', 'sadarghat', 'লঞ্চ'], lat: 23.7060, lng: 90.4086 },
+      { keys: ['গাবতলী', 'gabtoli'], lat: 23.7837, lng: 90.3442 },
+      { keys: ['মহাখালী', 'mohakhali'], lat: 23.7776, lng: 90.4054 },
+      { keys: ['সায়েদাবাদ', 'sayedabad'], lat: 23.7132, lng: 90.4290 },
+      { keys: ['স্কয়ার', 'square', 'পান্থপথ'], lat: 23.7529, lng: 90.3817 },
+      { keys: ['ঢাকা মেডিকেল', 'dmch', 'পিজি', 'bsmmu', 'শাহবাগ'], lat: 23.7259, lng: 90.3976 },
+      { keys: ['এভারকেয়ার', 'evercare', 'বসুন্ধরা'], lat: 23.8104, lng: 90.4316 },
+      { keys: ['উত্তরা', 'uttara'], lat: 23.8759, lng: 90.3795 },
+      { keys: ['মিরপুর', 'mirpur'], lat: 23.8042, lng: 90.3667 },
+      { keys: ['ধানমন্ডি', 'dhanmondi', 'ল্যাবএইড'], lat: 23.7461, lng: 90.3742 },
+      { keys: ['গুলশান', 'gulshan', 'বনানী', 'ইউনাইটেড'], lat: 23.7925, lng: 90.4078 }
+    ];
+
+    function showToast(msg, isErr = false) {
+      const box = document.getElementById('toastBox');
+      box.style.background = isErr ? 'var(--danger)' : 'var(--primary)';
+      box.innerText = msg;
+      box.style.display = 'block';
+      setTimeout(() => { box.style.display = 'none'; }, 3500);
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      document.getElementById('themeBtnText').innerText = isDark ? 'লাইট মোড' : 'ডার্ক মোড';
+      localStorage.setItem('js_admin_dark', isDark ? '1' : '0');
+    }
+    if (localStorage.getItem('js_admin_dark') === '1') toggleTheme();
+
+    function changeAccessRole(role) {
+      accessRole = role;
+      document.getElementById('roleStatusText').innerText =
+        role === 'super_admin'
+          ? 'সুপার অ্যাডমিন মোড (সম্পূর্ণ নিয়ন্ত্রণ)'
+          : 'অফিস সাপোর্ট টিম মোড (ওটিপি, ট্র্যাকিং ও বকেয়া ভেরিফিকেশন)';
+      renderActiveView();
+    }
+
+    function switchView(view) {
+      currentView = view;
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-view') === view);
+      });
+      document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active-kpi'));
+      if (view === 'all_bookings') document.getElementById('kpiCardBookings').classList.add('active-kpi');
+      if (view === 'live_trips') document.getElementById('kpiCardLive').classList.add('active-kpi');
+      if (view === 'locked_partners') document.getElementById('kpiCardLocked').classList.add('active-kpi');
+      if (view === 'completed_trips') document.getElementById('kpiCardCompleted').classList.add('active-kpi');
+      if (view === 'partner_levels') document.getElementById('kpiCardPartners').classList.add('active-kpi');
+
+      document.getElementById('levelFoldersBar').style.display = (view === 'partner_levels') ? 'grid' : 'none';
+      renderActiveView();
+    }
+
+    async function sbFetch(path, options = {}) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+        ...options,
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation',
+          ...(options.headers || {})
+        }
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err);
+      }
+      return res.json();
+    }
+
+    function hashCode(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+      return h;
+    }
+
+    function formatDateTimeBn(iso) {
+      if (!iso) return 'উল্লেখ নেই';
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      return d.toLocaleString('bn-BD', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    }
+
+    function timeAgoBn(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return '';
+      const diffMin = Math.floor((Date.now() - d.getTime()) / 60000);
+      if (diffMin < 1) return 'এইমাত্র';
+      if (diffMin < 60) return `${diffMin} মিনিট আগে`;
+      const diffHr = Math.floor(diffMin / 60);
+      if (diffHr < 24) return `${diffHr} ঘণ্টা আগে`;
+      const diffDays = Math.floor(diffHr / 24);
+      return `${diffDays} দিন আগে`;
+    }
+
+    function parseMetadata(dropoff, tripId, startOtpCol) {
+      const fallbackStart = ((Math.abs(hashCode(tripId)) % 9000) + 1000).toString();
+      const fallbackEnd = ((Math.floor(Math.abs(hashCode(tripId)) / 10) % 9000) + 1000).toString();
+      const meta = {
+        passenger: '', emergency: '', startOtp: startOtpCol || fallbackStart, endOtp: fallbackEnd,
+        advTrx: '', method: 'bkash', commCleared: false, commTrx: '', rating: '', review: '',
+        cleanDest: '', pickupGps: null, destGps: null, companionMeta: '',
+        baseFare: null, advancePaid: null, identityDoc: '', adjNote: '',
+        workLocked: Boolean(dropoff && dropoff.includes('WORK_DONE_LOCKED')),
+        extraDetails: []
+      };
+      if (!dropoff) {
+        meta.cleanDest = 'নির্ধারিত গন্তব্য';
+        return meta;
+      }
+      if (dropoff.includes('COMMISSION_CLEARED')) meta.commCleared = true;
+      const parts = dropoff.split('|').map(s => s.trim());
+      for (const p of parts) {
+        if (!p) continue;
+        if (p.startsWith('যাত্রী:')) meta.passenger = p.replace('যাত্রী:', '').trim();
+        else if (p.startsWith('জরুরি:')) meta.emergency = p.replace('জরুরি:', '').trim();
+        else if (p.startsWith('OTP:')) meta.startOtp = p.replace('OTP:', '').trim();
+        else if (p.startsWith('EndOTP:')) meta.endOtp = p.replace('EndOTP:', '').trim();
+        else if (p.startsWith('ADV_TRX:')) meta.advTrx = p.replace('ADV_TRX:', '').trim();
+        else if (p.startsWith('METHOD:')) meta.method = p.replace('METHOD:', '').trim();
+        else if (p.startsWith('TrxID:')) meta.commTrx = p.replace('TrxID:', '').trim();
+        else if (p.startsWith('রেটিং:')) meta.rating = p.replace('রেটিং:', '').trim();
+        else if (p.startsWith('রিভিউ:')) meta.review = p.replace('রিভিউ:', '').trim();
+        else if (p.startsWith('গন্তব্য:')) meta.cleanDest = p.replace('গন্তব্য:', '').trim();
+        else if (p.startsWith('সাথী:')) meta.companionMeta = p.replace('সাথী:', '').trim();
+        else if (p.startsWith('মূলভাড়া:')) meta.baseFare = parseInt(p.replace('মূলভাড়া:', '').replace('৳', '').trim(), 10) || null;
+        else if (p.startsWith('অগ্রিম:')) meta.advancePaid = parseInt(p.replace('অগ্রিম:', '').replace('৳', '').trim(), 10) || null;
+        else if (p.startsWith('ডকুমেন্ট:')) meta.identityDoc = p.replace('ডকুমেন্ট:', '').trim();
+        else if (p.startsWith('অ্যাডজাস্ট_নোট:')) meta.adjNote = p.replace('অ্যাডজাস্ট_নোট:', '').trim();
+        else if (p.startsWith('GPS:')) {
+          const c = p.replace('GPS:', '').split(',').map(Number);
+          if (c.length === 2 && !isNaN(c[0]) && !isNaN(c[1])) meta.pickupGps = c;
+        }
+        else if (p.startsWith('DestGPS:')) {
+          const c = p.replace('DestGPS:', '').split(',').map(Number);
+          if (c.length === 2 && !isNaN(c[0]) && !isNaN(c[1])) meta.destGps = c;
+        }
+        else if (
+          p !== 'COMMISSION_CLEARED' &&
+          p !== 'WORK_DONE_LOCKED' &&
+          !p.startsWith('টাইমঅ্যাডজাস্ট:') &&
+          !p.startsWith('সাথী_লেভেল:') &&
+          !p.startsWith('সাথী_রেটিং:')
+        ) {
+          meta.extraDetails.push(p);
+        }
+      }
+      if (!meta.cleanDest) {
+        meta.cleanDest = meta.extraDetails.length > 0 ? meta.extraDetails[0] : 'নির্ধারিত গন্তব্য';
+      }
+      return meta;
+    }
+
+    function calcCommission(trip) {
+      const comp = profileMap[trip.companion_id];
+      const meta = parseMetadata(trip.dropoff_location, trip.id, trip.start_otp_code);
+      const lvl = comp && typeof comp.level === 'number' ? Math.min(5, Math.max(0, comp.level)) : 0;
+      const sharePct = RANK_SHARES[lvl] || 30;
+      const price = Math.round(Number(trip.price) || 0);
+      const baseFare = meta.baseFare || price;
+      const isGeneral = trip.service_type === 'general';
+      const customerAdvance = meta.advancePaid || (isGeneral ? baseFare : Math.round(baseFare * 0.30));
+      const customerCashDue = Math.max(0, price - customerAdvance);
+      const partnerShare = Math.round((price * sharePct) / 100);
+      const companyDue = price - partnerShare;
+      return { price, baseFare, sharePct, partnerShare, companyDue, lvl, customerAdvance, customerCashDue };
+    }
+
+    function isTripUnpaidLock(t) {
+      if (t.status !== 'completed') return false;
+      const meta = parseMetadata(t.dropoff_location, t.id, t.start_otp_code);
+      const comm = calcCommission(t);
+      return comm.companyDue > 0 && !meta.commCleared;
+    }
+
+    function serviceLabel(s) {
+      const map = {
+        'hospital': 'হাসপাতাল সহায়তা সেবা',
+        'airport': 'এয়ারপোর্ট পিকআপ/ড্রপ সহায়তা',
+        'station': 'বাস/ট্রেন/লঞ্চ স্টেশন সহায়তা',
+        'abroad-treatment': 'ভারতে চিকিৎসা সহায়তা প্যাকেজ',
+        'general': 'দৈনন্দিন সেবা (১০০% অগ্রিম)'
+      };
+      return map[s] || s || 'সাধারণ সহায়তা সেবা';
+    }
+
+    function statusPillHtml(status) {
+      const map = {
+        'pending': '<span class="status-pill pill-warn">পেন্ডিং (সাথী খুঁজছে)</span>',
+        'accepted': '<span class="status-pill pill-info">লাইভ: সাথী রওনা দিয়েছে</span>',
+        'in_progress': '<span class="status-pill pill-info">লাইভ: ট্রিপ চলমান</span>',
+        'completed': '<span class="status-pill pill-success">সম্পন্ন ট্রিপ</span>',
+        'cancelled': '<span class="status-pill pill-danger">বাতিল ট্রিপ</span>'
+      };
+      return map[status] || `<span class="status-pill">${status}</span>`;
+    }
+
+    function resolveCoords(text, defaultLat, defaultLng) {
+      if (!text) return [defaultLat, defaultLng];
+      // Priority 1: Extract exact embedded GPS coordinates like (23.74116, 90.35876)
+      const coordMatch = text.match(/\((-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\)/);
+      if (coordMatch) {
+        const parsedLat = parseFloat(coordMatch[1]);
+        const parsedLng = parseFloat(coordMatch[2]);
+        if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+          return [parsedLat, parsedLng];
+        }
+      }
+      // Priority 2: Match known Dhaka/BD landmarks
+      const lower = text.toLowerCase();
+      for (const item of KNOWN_COORDS) {
+        if (item.keys.some(k => lower.includes(k))) {
+          return [item.lat, item.lng];
+        }
+      }
+      return [defaultLat, defaultLng];
+    }
+
+    async function fetchAllData() {
+      try {
+        const [trips, profiles] = await Promise.all([
+          sbFetch('trips?select=*&order=created_at.desc'),
+          sbFetch('profiles?select=*&order=created_at.desc')
+        ]);
+        allTrips = trips || [];
+        allProfiles = profiles || [];
+        profileMap = {};
+        allProfiles.forEach(p => { profileMap[p.id] = p; });
+
+        updateCountsAndKPIs();
+        renderActiveView();
+
+        if (selectedModalTripId) {
+          const updated = allTrips.find(t => t.id === selectedModalTripId);
+          if (updated) renderTripModalBody(updated);
+        }
+      } catch (e) {
+        showToast('ডাটা লোড করতে সমস্যা হয়েছে: ' + e.message, true);
+      }
+    }
+
+    function updateCountsAndKPIs() {
+      const liveTrips = allTrips.filter(t => ['accepted', 'in_progress'].includes(t.status));
+      const pendingTrips = allTrips.filter(t => t.status === 'pending');
+      const completedTrips = allTrips.filter(t => t.status === 'completed');
+      const cancelledTrips = allTrips.filter(t => t.status === 'cancelled');
+      const lockedTrips = allTrips.filter(isTripUnpaidLock);
+      const partners = allProfiles.filter(p => p.role === 'companion');
+      const customers = allProfiles.filter(p => p.role !== 'companion');
+
+      const gross = completedTrips.reduce((s, t) => s + (Number(t.price) || 0), 0);
+
+      document.getElementById('kpiTotalTrips').innerText = `${allTrips.length}`;
+      document.getElementById('kpiPendingSub').innerText = `পেন্ডিং অপেক্ষমাণ: ${pendingTrips.length} টি`;
+      document.getElementById('kpiLiveTrips').innerText = `${liveTrips.length}`;
+      document.getElementById('kpiUnpaidLocks').innerText = `${lockedTrips.length}`;
+      document.getElementById('kpiGrossFare').innerText =
+        accessRole === 'super_admin' ? `৳${gross.toLocaleString('bn-BD')}` : `${completedTrips.length} টি`;
+      document.getElementById('kpiCompletedSub').innerText = `সম্পন্ন ট্রিপ: ${completedTrips.length} টি`;
+      document.getElementById('kpiPartnersCount').innerText = `${partners.length}`;
+      document.getElementById('kpiCustomersSub').innerText = `নিবন্ধিত যাত্রী: ${customers.length} জন`;
+
+      document.getElementById('cnt-all_bookings').innerText = allTrips.length;
+      document.getElementById('cnt-live_trips').innerText = liveTrips.length;
+      document.getElementById('cnt-pending_trips').innerText = pendingTrips.length;
+      document.getElementById('cnt-completed_trips').innerText = completedTrips.length;
+      document.getElementById('cnt-cancelled_trips').innerText = cancelledTrips.length;
+      document.getElementById('cnt-locked_partners').innerText = lockedTrips.length;
+      document.getElementById('cnt-partner_levels').innerText = partners.length;
+      document.getElementById('cnt-customers').innerText = customers.length;
+    }
+
+    function renderActiveView() {
+      const q = (document.getElementById('globalSearch').value || '').toLowerCase().trim();
+      const container = document.getElementById('mainContentArea');
+      const titleEl = document.getElementById('viewContextTitle');
+
+      if (currentView === 'partner_levels') {
+        renderPartnerLevelsView(q, container, titleEl);
+        return;
+      }
+
+      if (currentView === 'customers') {
+        renderCustomersView(q, container, titleEl);
+        return;
+      }
+
+      // Otherwise it's a Trip / Locked list view
+      let baseList = [];
+      let label = '';
+      if (currentView === 'all_bookings') {
+        baseList = allTrips;
+        label = 'সকল বুকিং তালিকা';
+      } else if (currentView === 'live_trips') {
+        baseList = allTrips.filter(t => ['accepted', 'in_progress'].includes(t.status));
+        label = 'লাইভ চলমান ট্রিপ (Accepted ও In Progress)';
+      } else if (currentView === 'pending_trips') {
+        baseList = allTrips.filter(t => t.status === 'pending');
+        label = 'পেন্ডিং বুকিং (এখনো কোনো সাথী গ্রহণ করেনি)';
+      } else if (currentView === 'completed_trips') {
+        baseList = allTrips.filter(t => t.status === 'completed');
+        label = 'সম্পন্ন ট্রিপসমূহ';
+      } else if (currentView === 'cancelled_trips') {
+        baseList = allTrips.filter(t => t.status === 'cancelled');
+        label = 'বাতিল ট্রিপসমূহ';
+      } else if (currentView === 'locked_partners') {
+        baseList = allTrips.filter(isTripUnpaidLock);
+        label = 'বকেয়া কমিশনের কারণে লক থাকা সাথী ও ট্রিপসমূহ';
+      }
+
+      const filtered = baseList.filter(t => {
+        if (!q) return true;
+        const meta = parseMetadata(t.dropoff_location, t.id, t.start_otp_code);
+        const cust = profileMap[t.customer_id] || {};
+        const comp = profileMap[t.companion_id] || {};
+        const hay = `${t.id} ${cust.name||''} ${cust.phone||''} ${comp.name||''} ${comp.phone||''} ${meta.passenger} ${meta.emergency} ${meta.startOtp} ${meta.endOtp} ${meta.advTrx} ${meta.commTrx} ${t.pickup_location||''} ${meta.cleanDest}`.toLowerCase();
+        return hay.includes(q);
+      });
+
+      titleEl.innerText = `${label} — মোট ${filtered.length} টি রেকর্ড`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="kpi-card" style="text-align: center; padding: 42px; cursor: default;">
+            <div style="font-size: 16px; font-weight: 700; color: var(--text-secondary);">এই বিভাগে কোনো রেকর্ড পাওয়া যায়নি</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `<div class="list-stack">${filtered.map(buildTripCardHtml).join('')}</div>`;
+    }
+
+    function buildTripCardHtml(t) {
+      const meta = parseMetadata(t.dropoff_location, t.id, t.start_otp_code);
+      const comm = calcCommission(t);
+      const cust = profileMap[t.client_id || t.customer_id] || {};
+      const comp = profileMap[t.companion_id] || {};
+      const isLive = ['accepted', 'in_progress'].includes(t.status);
+      const isUnpaid = isTripUnpaidLock(t);
+
+      const custName = cust.name || meta.passenger || 'সম্মানিত গ্রাহক';
+      const passengerName = meta.passenger || custName;
+      const emergencyPhone = meta.emergency || cust.phone || 'N/A';
+      const compDisplay = comp.name || meta.companionMeta || (t.companion_id ? `সাথী আইডি #${t.companion_id.slice(0, 6)}` : '');
+
+      return `
+        <div class="trip-card ${isUnpaid ? 'locked-border' : ''} ${isLive ? 'live-border' : ''}" onclick="openTripModal('${t.id}')">
+          <div class="trip-header">
+            <div>
+              <div class="trip-meta-top">
+                <span class="trip-service-name">${serviceLabel(t.service_type)}</span>
+                ${statusPillHtml(t.status)}
+                ${isUnpaid
+                  ? `<span class="status-pill pill-danger">সাথী লকড (বকেয়া: ৳${comm.companyDue})</span>`
+                  : meta.commCleared
+                    ? `<span class="status-pill pill-success">কমিশন ক্লিয়ারড</span>`
+                    : ''}
+              </div>
+              <div class="trip-timestamps">
+                <span>বুকিং সময়: <strong>${formatDateTimeBn(t.created_at)}</strong> (${timeAgoBn(t.created_at)})</span>
+                <span>যাত্রার নির্ধারিত সময়: <strong>${formatDateTimeBn(t.scheduled_time)}</strong></span>
+                <span>আইডি: <code class="code-tag">#${t.id.slice(0, 8)}</code></span>
+              </div>
+            </div>
+
+            <div class="fare-box">
+              <div class="fare-label">মোট নির্ধারিত ভাড়া</div>
+              <div class="fare-val">৳${comm.price.toLocaleString('bn-BD')}</div>
+              <div class="fare-split">সাথী: ৳${comm.partnerShare} | কোম্পানি: ৳${comm.companyDue}</div>
+            </div>
+          </div>
+
+          <div class="trip-columns">
+            <!-- Col 1: Passenger & Companion -->
+            <div class="col-panel">
+              <div class="col-label">যাত্রী ও দায়িত্বপ্রাপ্ত সাথী</div>
+              <div class="data-title">যাত্রী: ${passengerName}</div>
+              <div class="data-sub">বুকিংকারী: ${custName} • ফোন: ${emergencyPhone}</div>
+              <div style="border-top: 1px dashed var(--border); margin: 8px 0;"></div>
+              <div class="data-title" style="color: ${compDisplay ? 'var(--primary)' : 'var(--warn)'};">
+                সাথী: ${compDisplay || 'এখনো কোনো সাথী গ্রহণ করেনি'}
+              </div>
+              <div class="data-sub">
+                ${comp.name ? `ফোন: ${comp.phone || 'N/A'} • ${RANK_SHORT[comm.lvl]}` : 'সাথী অ্যাসাইন হওয়ার অপেক্ষায়'}
+              </div>
+            </div>
+
+            <!-- Col 2: Pickup & Destination -->
+            <div class="col-panel">
+              <div class="col-label">কোথা থেকে কোথায় যাচ্ছে (রুট)</div>
+              <div class="route-item">
+                <span class="route-dot dot-pickup"></span>
+                <div>
+                  <div style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">কোথা থেকে (পিকআপ):</div>
+                  <div class="data-title" style="font-size: 14.5px;">${t.pickup_location || 'নির্ধারিত পিকআপ'}</div>
+                </div>
+              </div>
+              <div class="route-item">
+                <span class="route-dot dot-dest"></span>
+                <div>
+                  <div style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">কোথায় যাচ্ছে (গন্তব্য):</div>
+                  <div class="data-title" style="font-size: 14.5px;">${meta.cleanDest}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Col 3: Financials, TrxID & OTP -->
+            <div class="col-panel">
+              <div class="col-label">পেমেন্ট, TrxID ও সিকিউরিটি ওটিপি</div>
+              <div class="kv-row">
+                <span>যাত্রীর অগ্রিম (${meta.method.toUpperCase()}):</span>
+                <span class="kv-val" style="color: var(--primary);">৳${comm.customerAdvance}</span>
+              </div>
+              <div class="kv-row">
+                <span>অগ্রিম TrxID:</span>
+                <span class="code-tag">${meta.advTrx || 'দেওয়া হয়নি'}</span>
+              </div>
+              <div class="kv-row">
+                <span>কোম্পানি কমিশন (${100 - comm.sharePct}%):</span>
+                <span class="kv-val" style="color: var(--danger);">৳${comm.companyDue}</span>
+              </div>
+              <div class="kv-row">
+                <span>সাথীর কমিশন TrxID:</span>
+                <span class="code-tag" style="border-color: ${meta.commTrx ? 'var(--primary)' : 'var(--danger)'};">
+                  ${meta.commTrx || 'জমা দেয়নি'}
+                </span>
+              </div>
+              <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+                <span class="status-pill pill-success">Start OTP: ${meta.startOtp}</span>
+                <span class="status-pill pill-info">End OTP: ${meta.endOtp}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="trip-actions" onclick="event.stopPropagation()">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-info" onclick="openTripModal('${t.id}')">
+                <svg class="icon" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                <span>লাইভ ম্যাপ ও সম্পূর্ণ বিবরণ</span>
+              </button>
+
+              ${!meta.commCleared
+                ? `<button class="btn btn-primary" onclick="approveCommission('${t.id}')">বকেয়া ক্লিয়ার ও সাথী আনলক করুন</button>`
+                : `<button class="btn btn-danger" onclick="rejectCommission('${t.id}')">ক্লিয়ারেন্স বাতিল ও পুনরায় লক করুন</button>`
+              }
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 13px; font-weight: 700; color: var(--text-secondary);">স্ট্যাটাস:</span>
+              <select onchange="updateTripStatus('${t.id}', this.value)" style="padding: 6px 10px; font-size: 13px;">
+                <option value="pending" ${t.status === 'pending' ? 'selected' : ''}>পেন্ডিং</option>
+                <option value="accepted" ${t.status === 'accepted' ? 'selected' : ''}>অ্যাক্সেপ্টেড</option>
+                <option value="in_progress" ${t.status === 'in_progress' ? 'selected' : ''}>চলমান (In Progress)</option>
+                <option value="completed" ${t.status === 'completed' ? 'selected' : ''}>সম্পন্ন (Completed)</option>
+                <option value="cancelled" ${t.status === 'cancelled' ? 'selected' : ''}>বাতিল (Cancelled)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPartnerLevelsView(q, container, titleEl) {
+      const allPartners = allProfiles.filter(p => p.role === 'companion');
+
+      // Render Folder Bar (All + Rank 0 to Rank 5)
+      const folderBar = document.getElementById('levelFoldersBar');
+      const levelCounts = { all: allPartners.length, 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
+      allPartners.forEach(p => {
+        const lvl = typeof p.level === 'number' ? Math.min(5, Math.max(0, p.level)) : 0;
+        levelCounts[lvl] = (levelCounts[lvl] || 0) + 1;
+      });
+
+      const folders = [
+        { key: 'all', title: 'সকল লেভেলের সাথী', sub: 'সব ফোল্ডার একসাথে' },
+        { key: '5', title: 'Rank 0 ফোল্ডার', sub: 'এলিট গার্ডিয়ান (৭৫% শেয়ার)' },
+        { key: '4', title: 'Rank 1 ফোল্ডার', sub: 'মাস্টার সাথী (৭০% শেয়ার)' },
+        { key: '3', title: 'Rank 2 ফোল্ডার', sub: 'সিনিয়র সাথী (৬৫% শেয়ার)' },
+        { key: '2', title: 'Rank 3 ফোল্ডার', sub: 'অভিজ্ঞ সাথী (৫৫% শেয়ার)' },
+        { key: '1', title: 'Rank 4 ফোল্ডার', sub: 'নিয়মিত সাথী (৪৫% শেয়ার)' },
+        { key: '0', title: 'Rank 5 ফোল্ডার', sub: 'প্রাথমিক সাথী (৩০% শেয়ার)' }
+      ];
+
+      folderBar.innerHTML = folders.map(f => {
+        const cnt = f.key === 'all' ? levelCounts.all : levelCounts[Number(f.key)];
+        const isActive = String(selectedPartnerLevelFolder) === f.key;
+        return `
+          <div class="folder-card ${isActive ? 'active' : ''}" onclick="selectLevelFolder('${f.key}')">
+            <div class="folder-top">
+              <span style="display:flex; align-items:center; gap:6px;">
+                <svg class="icon" style="color: var(--primary);" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <span>${f.title}</span>
+              </span>
+              <span class="nav-count">${cnt} জন</span>
+            </div>
+            <div class="folder-sub">${f.sub}</div>
+          </div>
+        `;
+      }).join('');
+
+      const filtered = allPartners.filter(p => {
+        const lvl = typeof p.level === 'number' ? Math.min(5, Math.max(0, p.level)) : 0;
+        if (selectedPartnerLevelFolder !== 'all' && String(lvl) !== String(selectedPartnerLevelFolder)) {
+          return false;
+        }
+        if (!q) return true;
+        return `${p.name||''} ${p.phone||''} ${p.email||''}`.toLowerCase().includes(q);
+      });
+
+      titleEl.innerText = `সাথী ও লেভেল কন্ট্রোল — মোট ${filtered.length} জন সাথী`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="kpi-card" style="text-align:center; padding:38px;">এই লেভেল ফোল্ডারে কোনো সাথী নেই</div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="user-grid">
+          ${filtered.map(p => {
+            const lvl = typeof p.level === 'number' ? Math.min(5, Math.max(0, p.level)) : 0;
+            const wallet = Math.round(Number(p.wallet_balance) || 0);
+            const lockedTrips = allTrips.filter(t => t.companion_id === p.id && isTripUnpaidLock(t));
+            const hasLock = lockedTrips.length > 0;
+            const isSuper = accessRole === 'super_admin';
+
+            return `
+              <div class="user-card" style="border-left: 4px solid ${hasLock ? 'var(--danger)' : 'var(--primary)'};">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:12px;">
+                  <div>
+                    <div class="data-title" style="font-size:17.5px;">${p.name || 'নামহীন সাথী'}</div>
+                    <div class="data-sub">মোবাইল: <strong>${p.phone || 'N/A'}</strong> • রেটিং: ${Number(p.rating || 5).toFixed(1)}</div>
+                    <div class="data-sub">সম্পন্ন ট্রিপ: <strong>${p.completed_trips || 0} টি</strong></div>
+                  </div>
+                  ${hasLock
+                    ? `<span class="status-pill pill-danger">বকেয়া লকড (${lockedTrips.length})</span>`
+                    : `<span class="status-pill pill-success">সচল</span>`
+                  }
+                </div>
+
+                <div class="col-panel" style="margin-bottom: 12px;">
+                  <div class="kv-row" style="margin-bottom: 8px;">
+                    <span>বর্তমান লেভেল:</span>
+                    <span class="kv-val" style="color: var(--primary);">${RANK_SHORT[lvl]}</span>
+                  </div>
+
+                  <label style="font-size:12px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:5px;">
+                    লেভেল / র‍্যাংক পরিবর্তন করুন:
+                  </label>
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <select style="flex:1;" onchange="updatePartnerRank('${p.id}', Number(this.value))" ${!isSuper ? 'disabled' : ''}>
+                      ${[5,4,3,2,1,0].map(k => `<option value="${k}" ${k===lvl?'selected':''}>${RANK_NAMES[k]}</option>`).join('')}
+                    </select>
+                  </div>
+                  ${isSuper ? `
+                    <div style="display:flex; gap:6px; margin-top:8px;">
+                      <button class="btn" style="flex:1; justify-content:center; padding:6px;" onclick="updatePartnerRank('${p.id}', Math.min(5, ${lvl}+1))" ${lvl>=5?'disabled':''}>
+                        + লেভেল প্রোমোট করুন
+                      </button>
+                      <button class="btn" style="flex:1; justify-content:center; padding:6px;" onclick="updatePartnerRank('${p.id}', Math.max(0, ${lvl}-1))" ${lvl<=0?'disabled':''}>
+                        - লেভেল ডিমোট করুন
+                      </button>
+                    </div>
+                  ` : ''}
+                </div>
+
+                <div class="kv-row" style="margin-bottom: 8px;">
+                  <span>ওয়ালেট ব্যালেন্স:</span>
+                  <span class="kv-val" style="font-size:16px; color:var(--primary);">৳${wallet.toLocaleString('bn-BD')}</span>
+                </div>
+
+                ${isSuper ? `
+                  <div style="display:flex; gap:8px;">
+                    <input type="number" id="wallet-${p.id}" class="input" style="flex:1; padding:7px 10px;" value="${wallet}" placeholder="ওয়ালেট ৳" />
+                    <button class="btn btn-primary" onclick="updatePartnerWallet('${p.id}')">ব্যালেন্স সেভ</button>
+                  </div>
+                ` : `<div style="font-size:12px; color:var(--text-muted);">ওয়ালেট ও লেভেল পরিবর্তন শুধুমাত্র সুপার অ্যাডমিনের জন্য সংরক্ষিত।</div>`}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function selectLevelFolder(folderKey) {
+      selectedPartnerLevelFolder = folderKey;
+      renderActiveView();
+    }
+
+    function renderCustomersView(q, container, titleEl) {
+      const customers = allProfiles.filter(p => p.role !== 'companion' && (!q || `${p.name||''} ${p.phone||''} ${p.email||''}`.toLowerCase().includes(q)));
+      titleEl.innerText = `নিবন্ধিত যাত্রী তালিকা — মোট ${customers.length} জন`;
+
+      if (customers.length === 0) {
+        container.innerHTML = `<div class="kpi-card" style="text-align:center; padding:38px;">কোনো যাত্রী পাওয়া যায়নি</div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="user-grid">
+          ${customers.map(c => {
+            const myTrips = allTrips.filter(t => t.customer_id === c.id);
+            const totalSpent = myTrips.reduce((s, t) => s + (Number(t.price) || 0), 0);
+            return `
+              <div class="user-card">
+                <div class="data-title" style="font-size:17px;">${c.name || 'নামহীন যাত্রী'}</div>
+                <div class="data-sub">মোবাইল: <strong>${c.phone || 'N/A'}</strong></div>
+                <div class="data-sub">ইমেইল: ${c.email || 'দেওয়া হয়নি'}</div>
+                <div class="col-panel" style="margin-top:12px;">
+                  <div class="kv-row">
+                    <span>মোট বুকিং সংখ্যা:</span>
+                    <span class="kv-val">${myTrips.length} টি</span>
+                  </div>
+                  <div class="kv-row">
+                    <span>মোট ট্রিপ ভাড়া:</span>
+                    <span class="kv-val" style="color:var(--primary);">৳${totalSpent.toLocaleString('bn-BD')}</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function openTripModal(tripId) {
+      const t = allTrips.find(x => x.id === tripId);
+      if (!t) return;
+      selectedModalTripId = tripId;
+      document.getElementById('tripDetailModal').classList.add('open');
+      renderTripModalBody(t);
+      setTimeout(() => initOrUpdateMap(t), 120);
+    }
+
+    function closeTripModal() {
+      selectedModalTripId = null;
+      document.getElementById('tripDetailModal').classList.remove('open');
+    }
+
+    function renderTripModalBody(t) {
+      const meta = parseMetadata(t.dropoff_location, t.id, t.start_otp_code);
+      const comm = calcCommission(t);
+      const cust = profileMap[t.client_id || t.customer_id] || {};
+      const comp = profileMap[t.companion_id] || {};
+      const isAbroad = t.service_type === 'abroad-treatment';
+
+      document.getElementById('modalTripTitle').innerHTML = `${serviceLabel(t.service_type)} ${statusPillHtml(t.status)}`;
+      document.getElementById('modalTripSub').innerText =
+        `বুকিং সময়: ${formatDateTimeBn(t.created_at)} (${timeAgoBn(t.created_at)}) • যাত্রার সময়: ${formatDateTimeBn(t.scheduled_time)}`;
+
+      document.getElementById('modalTripBody').innerHTML = `
+        <div class="trip-columns">
+          <div class="col-panel">
+            <div class="col-label">কে কখন বুক করেছে ও মূল যাত্রী কে</div>
+            <div class="data-title">মূল যাত্রী: ${meta.passenger || cust.name || 'অজানা'}</div>
+            <div class="data-sub">জরুরি যোগাযোগ: <strong>${meta.emergency || cust.phone || 'N/A'}</strong></div>
+            <div class="data-sub">ডকুমেন্ট (NID/Passport): <strong>${meta.identityDoc || 'পাবলিক সেবা (প্রয়োজন নেই)'}</strong></div>
+            <div class="data-sub" style="margin-top:6px; color:var(--primary);">বুকিং করার সময়: ${formatDateTimeBn(t.created_at)}</div>
+            <div class="data-sub">নির্ধারিত যাত্রার সময়: ${formatDateTimeBn(t.scheduled_time)}</div>
+          </div>
+
+          <div class="col-panel">
+            <div class="col-label">দায়িত্বপ্রাপ্ত সাথী (Companion)</div>
+            <div class="data-title">${comp.name || meta.companionMeta || 'এখনো কোনো সাথী গ্রহণ করেনি'}</div>
+            <div class="data-sub">মোবাইল: <strong>${comp.phone || 'N/A'}</strong></div>
+            <div class="data-sub">র‍্যাংক: ${comp.name ? RANK_NAMES[comm.lvl] : '-'}</div>
+            <div class="data-sub">টাইমার স্ট্যাটাস: <strong style="color:${meta.workLocked ? 'var(--warn)' : 'var(--primary)'};">${meta.workLocked ? 'কাস্টমার কাজ সমাপ্তি লক করেছেন' : 'চলমান (৩০ মিনিট গ্রেস টাইম ফ্রি)'}</strong></div>
+          </div>
+        </div>
+
+        <div class="col-panel" style="margin-bottom: 14px;">
+          <div class="col-label">পরিস্থিতি নিয়ন্ত্রণ ও লাইভ বিল মডিফাই (অ্যাডমিন ও সাপোর্ট প্যানেল)</div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;">
+            <button class="btn" onclick="modifyTripFare('${t.id}', 150, '+১ ঘণ্টা ওভারটাইম')">+১ ঘণ্টা (+৳১৫০)</button>
+            <button class="btn" onclick="modifyTripFare('${t.id}', ${isAbroad ? 2500 : 1200}, '+১ দিন বৃদ্ধি')">+১ দিন মেয়াদ বৃদ্ধি (+৳${isAbroad ? 2500 : 1200})</button>
+            <button class="btn" onclick="modifyTripFare('${t.id}', ${isAbroad ? -1750 : -840}, '-১ দিন আর্লি রিটার্ন')">-১ দিন কমানো (Early Return)</button>
+            <button class="btn" onclick="modifyTripFare('${t.id}', ${isAbroad ? 1000 : 300}, '+২য় রোগী সেবা')">+২য় রোগী সেবা (+৳${isAbroad ? 1000 : 300})</button>
+            <button class="btn" onclick="reassignTripToPending('${t.id}')">সাথী পরিবর্তন (Re-assign)</button>
+          </div>
+        </div>
+
+        <div class="col-panel" style="margin-bottom: 14px;">
+          <div class="col-label">কোথা থেকে কোথায় যাচ্ছে (সম্পূর্ণ রুট ও নোট)</div>
+          <div class="route-item">
+            <span class="route-dot dot-pickup"></span>
+            <div>
+              <div style="font-size:12px; color:var(--text-muted); font-weight:700;">কোথা থেকে যাত্রা শুরু (Pickup Location):</div>
+              <div class="data-title">${t.pickup_location || 'নির্ধারিত পিকআপ'}</div>
+            </div>
+          </div>
+          <div class="route-item" style="margin-top:8px;">
+            <span class="route-dot dot-dest"></span>
+            <div>
+              <div style="font-size:12px; color:var(--text-muted); font-weight:700;">কোথায় যাচ্ছে (Destination / Dropoff):</div>
+              <div class="data-title">${meta.cleanDest}</div>
+            </div>
+          </div>
+          ${meta.adjNote ? `
+            <div style="margin-top:10px; padding-top:8px; border-top:1px dashed var(--border); font-size:13px; color:var(--warn);">
+              <strong>অনুমোদিত পরিবর্তন নোট:</strong> ${meta.adjNote}
+            </div>
+          ` : ''}
+          ${meta.extraDetails.length > 0 ? `
+            <div style="margin-top:10px; padding-top:8px; border-top:1px dashed var(--border); font-size:13px; color:var(--text-secondary);">
+              <strong>অতিরিক্ত বুকিং নোট:</strong> ${meta.extraDetails.join(' • ')}
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="trip-columns">
+          <div class="col-panel">
+            <div class="col-label">অফিসিয়াল ডিজিটাল ক্যাশ মেমো (টাকার পূর্ণাঙ্গ হিসাব)</div>
+            <div class="kv-row"><span>মূল প্যাকেজ ভাড়া:</span><span class="kv-val">৳${comm.baseFare}</span></div>
+            <div class="kv-row"><span>সমন্বয় / পরিবর্তন:</span><span class="kv-val" style="color:var(--warn);">${comm.price - comm.baseFare >= 0 ? '+' : ''}৳${comm.price - comm.baseFare}</span></div>
+            <div class="kv-row"><span>মোট চূড়ান্ত ভাড়া:</span><span class="kv-val">৳${comm.price}</span></div>
+            <div class="kv-row"><span>যাত্রীর অনলাইন অগ্রিম (${meta.method.toUpperCase()}):</span><span class="kv-val" style="color:var(--primary);">৳${comm.customerAdvance}</span></div>
+            <div class="kv-row"><span>যাত্রীর কাছে ক্যাশ বাকি:</span><span class="kv-val">৳${comm.customerCashDue}</span></div>
+            <div style="border-top:1px dashed var(--border); margin:6px 0;"></div>
+            <div class="kv-row"><span>সাথীর আয় (${comm.sharePct}%):</span><span class="kv-val" style="color:var(--primary);">৳${comm.partnerShare}</span></div>
+            <div class="kv-row"><span>কোম্পানির কমিশন (${100 - comm.sharePct}%):</span><span class="kv-val" style="color:var(--danger);">৳${comm.companyDue}</span></div>
+          </div>
+
+          <div class="col-panel">
+            <div class="col-label">সিকিউরিটি ওটিপি ও TrxID যাচাই</div>
+            <div class="kv-row"><span>যাত্রীর অগ্রিম TrxID:</span><span class="code-tag">${meta.advTrx || 'N/A'}</span></div>
+            <div class="kv-row"><span>সাথীর কমিশন TrxID:</span><span class="code-tag">${meta.commTrx || 'জমা দেয়নি'}</span></div>
+            <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+              <span class="status-pill pill-success" style="font-size:14.5px; padding:6px 12px;">Start OTP: ${meta.startOtp}</span>
+              <span class="status-pill pill-info" style="font-size:14.5px; padding:6px 12px;">End OTP: ${meta.endOtp}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function modifyTripFare(tripId, delta, noteLabel) {
+      const t = allTrips.find(x => x.id === tripId);
+      if (!t) return;
+      try {
+        const meta = parseMetadata(t.dropoff_location, t.id, t.start_otp_code);
+        const curPrice = Math.round(Number(t.price) || 1000);
+        const baseFare = meta.baseFare || curPrice;
+        const newPrice = Math.max(300, curPrice + delta);
+        const totalAdj = newPrice - baseFare;
+        let d = t.dropoff_location || '';
+        if (!d.includes('মূলভাড়া:')) d += ` | মূলভাড়া: ${baseFare}`;
+        const combinedNote = meta.adjNote ? `${meta.adjNote}, ${noteLabel}` : noteLabel;
+        d = d.replace(/\|\s*টাইমঅ্যাডজাস্ট:.*?(\||$)/g, '').replace(/\|\s*অ্যাডজাস্ট_নোট:.*?(\||$)/g, '').trim();
+        d = `${d} | টাইমঅ্যাডজাস্ট: ৳${totalAdj} | অ্যাডজাস্ট_নোট: ${combinedNote}`;
+        await sbFetch(`trips?id=eq.${tripId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ price: newPrice, dropoff_location: d })
+        });
+        showToast(`সফলভাবে "${noteLabel}" যুক্ত হয়েছে! নতুন ভাড়া: ৳${newPrice}`);
+        await fetchAllData();
+      } catch (e) {
+        showToast('পরিবর্তন ব্যর্থ: ' + e.message, true);
+      }
+    }
+
+    async function reassignTripToPending(tripId) {
+      try {
+        await sbFetch(`trips?id=eq.${tripId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'pending', companion_id: null })
+        });
+        showToast('ট্রিপটি নতুন সাথীর জন্য পেন্ডিং তালিকায় পাঠানো হয়েছে!');
+        await fetchAllData();
+      } catch (e) {
+        showToast('সাথী পরিবর্তন ব্যর্থ: ' + e.message, true);
+      }
+    }
+
+    async function initOrUpdateMap(t) {
+      const meta = parseMetadata(t.dropoff_location, t.id, t.start_otp_code);
+      const pLat = (meta.pickupGps ? meta.pickupGps[0] : Number(t.pickup_lat)) || 23.8103;
+      const pLng = (meta.pickupGps ? meta.pickupGps[1] : Number(t.pickup_lng)) || 90.4125;
+      const [pCoordsLat, pCoordsLng] = meta.pickupGps ? meta.pickupGps : resolveCoords(t.pickup_location, pLat, pLng);
+      const [dCoordsLat, dCoordsLng] = meta.destGps ? meta.destGps : resolveCoords(meta.cleanDest, pCoordsLat + 0.022, pCoordsLng + 0.018);
+
+      const distBadge = document.getElementById('roadDistanceBadge');
+      const liveText = document.getElementById('liveGpsStatusText');
+      if (distBadge) distBadge.innerText = 'সড়কপথের আসল রুট লোড হচ্ছে...';
+      if (liveText) liveText.innerText = '';
+
+      if (leafletMap) {
+        leafletMap.remove();
+        leafletMap = null;
+      }
+
+      leafletMap = L.map('tripLiveMap', { zoomControl: true }).setView([pCoordsLat, pCoordsLng], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(leafletMap);
+
+      const makePinIcon = (bg, label) => L.divIcon({
+        className: 'custom-div-pin',
+        html: `
+          <div style="display:flex; flex-direction:column; align-items:center; transform:translate(-50%, -100%);">
+            <div style="background:${bg}; color:#fff; font-family:'Hind Siliguri',sans-serif; font-size:12px; font-weight:700; padding:3px 9px; border-radius:6px; white-space:nowrap; box-shadow:0 3px 8px rgba(0,0,0,0.28); border:1.5px solid #fff;">
+              ${label}
+            </div>
+            <div style="width:14px; height:14px; border-radius:50%; background:${bg}; border:2.5px solid #fff; margin-top:-2px; box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>
+          </div>
+        `,
+        iconSize: [0, 0],
+        iconAnchor: [0, 0]
+      });
+
+      const cleanPickupName = (t.pickup_location || 'পিকআপ পয়েন্ট').replace(/\((-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\)/g, '').trim();
+      const cleanDestName = (meta.cleanDest || 'গন্তব্য').replace(/\((-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\)/g, '').trim();
+
+      L.marker([pCoordsLat, pCoordsLng], { icon: makePinIcon('#059669', 'পিকআপ পয়েন্ট') })
+        .addTo(leafletMap)
+        .bindTooltip(`<b>পিকআপ:</b> ${cleanPickupName}`, { direction: 'bottom', offset: [0, 8] });
+
+      L.marker([dCoordsLat, dCoordsLng], { icon: makePinIcon('#DC2626', 'গন্তব্য পয়েন্ট') })
+        .addTo(leafletMap)
+        .bindTooltip(`<b>গন্তব্য:</b> ${cleanDestName}`, { direction: 'bottom', offset: [0, 8] });
+
+      // Fetch real road driving route via OSRM
+      let routeLatLngs = [[pCoordsLat, pCoordsLng], [dCoordsLat, dCoordsLng]];
+      try {
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pCoordsLng},${pCoordsLat};${dCoordsLng},${dCoordsLat}?overview=full&geometries=geojson`;
+        const res = await fetch(osrmUrl);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.routes && data.routes.length > 0) {
+            const r = data.routes[0];
+            routeLatLngs = r.geometry.coordinates.map(c => [c[1], c[0]]);
+            const km = (r.distance / 1000).toFixed(1);
+            const mins = Math.ceil(r.duration / 60);
+            if (distBadge) {
+              distBadge.innerText = `সড়কপথের দূরত্ব: ${km} কি.মি. • সম্ভাব্য সময়: ≈ ${mins} মিনিট`;
+            }
+          }
+        }
+      } catch (_) {
+        if (distBadge) distBadge.innerText = 'সড়কপথের রুট ম্যাপ';
+      }
+
+      // Draw outer casing + inner road route line (like Google Maps / Uber)
+      L.polyline(routeLatLngs, {
+        color: '#064E3B',
+        weight: 8,
+        opacity: 0.35,
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(leafletMap);
+
+      const roadLine = L.polyline(routeLatLngs, {
+        color: '#059669',
+        weight: 5,
+        opacity: 0.95,
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(leafletMap);
+
+      // Check real companion live GPS from Supabase RPC js12_read_location
+      if (['accepted', 'in_progress'].includes(t.status)) {
+        try {
+          const gpsRows = await sbFetch('rpc/js12_read_location', {
+            method: 'POST',
+            body: JSON.stringify({ p_trip_id: t.id })
+          });
+          if (Array.isArray(gpsRows) && gpsRows.length > 0 && gpsRows[0].latitude && gpsRows[0].longitude) {
+            const cLat = Number(gpsRows[0].latitude);
+            const cLng = Number(gpsRows[0].longitude);
+            L.marker([cLat, cLng], { icon: makePinIcon('#2563EB', 'সাথীর লাইভ GPS') }).addTo(leafletMap);
+            if (liveText) liveText.innerText = '• সাথীর রিয়েল-টাইম GPS সচল';
+          } else {
+            const midIdx = Math.floor(routeLatLngs.length / 2);
+            const [mLat, mLng] = routeLatLngs[midIdx] || [pCoordsLat, pCoordsLng];
+            L.marker([mLat, mLng], { icon: makePinIcon('#2563EB', 'সাথী রুট বরাবর চলমান') }).addTo(leafletMap);
+            if (liveText) liveText.innerText = '• ট্রিপ চলমান';
+          }
+        } catch (_) {}
+      }
+
+      leafletMap.fitBounds(roadLine.getBounds(), { padding: [55, 55] });
+    }
+
+    async function approveCommission(tripId) {
+      const trip = allTrips.find(t => t.id === tripId);
+      if (!trip) return;
+      let dropoff = trip.dropoff_location || '';
+      if (!dropoff.includes('COMMISSION_CLEARED')) {
+        const trxTag = dropoff.includes('TrxID:') ? '' : ' | TrxID: ADMIN_APPROVED';
+        dropoff = `${dropoff} | COMMISSION_CLEARED${trxTag}`;
+      }
+      try {
+        await sbFetch(`trips?id=eq.${tripId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ dropoff_location: dropoff })
+        });
+        showToast('বকেয়া ক্লিয়ার ও সাথীর অ্যাকাউন্ট আনলক করা হয়েছে!');
+        fetchAllData();
+      } catch (e) {
+        showToast('সমস্যা হয়েছে: ' + e.message, true);
+      }
+    }
+
+    async function rejectCommission(tripId) {
+      const trip = allTrips.find(t => t.id === tripId);
+      if (!trip) return;
+      const cleaned = (trip.dropoff_location || '')
+        .split('|')
+        .map(s => s.trim())
+        .filter(p => p !== 'COMMISSION_CLEARED' && !p.startsWith('TrxID:'))
+        .join(' | ');
+      try {
+        await sbFetch(`trips?id=eq.${tripId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ dropoff_location: cleaned })
+        });
+        showToast('ক্লিয়ারেন্স বাতিল করে সাথীকে পুনরায় লক করা হয়েছে!');
+        fetchAllData();
+      } catch (e) {
+        showToast('সমস্যা হয়েছে: ' + e.message, true);
+      }
+    }
+
+    async function updateTripStatus(tripId, status) {
+      try {
+        await sbFetch(`trips?id=eq.${tripId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status })
+        });
+        showToast(`ট্রিপের স্ট্যাটাস "${status}"-এ পরিবর্তন হয়েছে!`);
+        fetchAllData();
+      } catch (e) {
+        showToast('স্ট্যাটাস আপডেট ব্যর্থ: ' + e.message, true);
+      }
+    }
+
+    async function updatePartnerRank(partnerId, level) {
+      if (accessRole !== 'super_admin') {
+        showToast('শুধুমাত্র সুপার অ্যাডমিন লেভেল পরিবর্তন করতে পারবেন!', true);
+        return;
+      }
+      try {
+        await sbFetch(`profiles?id=eq.${partnerId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ level })
+        });
+        showToast('সাথীর লেভেল সফলভাবে আপডেট করা হয়েছে!');
+        fetchAllData();
+      } catch (e) {
+        showToast('লেভেল আপডেট ব্যর্থ: ' + e.message, true);
+      }
+    }
+
+    async function updatePartnerWallet(partnerId) {
+      if (accessRole !== 'super_admin') {
+        showToast('শুধুমাত্র সুপার অ্যাডমিন ওয়ালেট ব্যালেন্স পরিবর্তন করতে পারবেন!', true);
+        return;
+      }
+      const val = Number(document.getElementById(`wallet-${partnerId}`).value) || 0;
+      try {
+        await sbFetch(`profiles?id=eq.${partnerId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ wallet_balance: val })
+        });
+        showToast(`সাথীর ওয়ালেট ব্যালেন্স ৳${val} সেভ হয়েছে!`);
+        fetchAllData();
+      } catch (e) {
+        showToast('ওয়ালেট আপডেট ব্যর্থ: ' + e.message, true);
+      }
+    }
+
+    fetchAllData();
+    setInterval(fetchAllData, 10000);
+  </script>
+</body>
+</html>

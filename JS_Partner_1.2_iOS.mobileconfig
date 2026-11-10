@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>FullScreen</key>
+            <true/>
+            <key>IsRemovable</key>
+            <true/>
+            <key>Label</key>
+            <string>যাত্রাসাথী পার্টনার</string>
+            <key>PayloadDescription</key>
+            <string>যাত্রাসাথী পার্টনার iOS App</string>
+            <key>PayloadDisplayName</key>
+            <string>যাত্রাসাথী পার্টনার</string>
+            <key>PayloadIdentifier</key>
+            <string>com.jatrasathi.partner.webclip.8103FDA0-079E-440A-9670-93071E074A71</string>
+            <key>PayloadType</key>
+            <string>com.apple.webClip.managed</string>
+            <key>PayloadUUID</key>
+            <string>8103FDA0-079E-440A-9670-93071E074A71</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+            <key>Precomposed</key>
+            <true/>
+            <key>URL</key>
+            <string>https://hamzanazrul.github.io/jatrasathi-app/ios_partner/</string>
+        </dict>
+    </array>
+    <key>PayloadDescription</key>
+    <string>Install যাত্রাসাথী পার্টনার directly onto your iPhone Home Screen.</string>
+    <key>PayloadDisplayName</key>
+    <string>যাত্রাসাথী পার্টনার (iOS Official Installer)</string>
+    <key>PayloadIdentifier</key>
+    <string>com.jatrasathi.partner.profile.5C113732-EE97-4229-B2A8-F6AE092F6729</string>
+    <key>PayloadOrganization</key>
+    <string>JatraSathi Bangladesh</string>
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>5C113732-EE97-4229-B2A8-F6AE092F6729</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>

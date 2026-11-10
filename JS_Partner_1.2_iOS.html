@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="যাত্রাসাথী পার্টনার" />
+  <title>যাত্রাসাথী ১.২ — সাথী / পার্টনার অ্যাপ (iOS)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Hind Siliguri', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: #0F172A; color: #F8FAFC; min-height: 100vh; padding-bottom: 40px; }
+    .topbar { background: #1E293B; border-bottom: 1px solid #334155; padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    .topbar h1 { font-size: 18.5px; font-weight: 700; color: #fff; }
+    .topbar .sub { font-size: 12px; color: #38BDF8; }
+    .container { max-width: 500px; margin: 0 auto; padding: 14px; }
+    .card { background: #1E293B; border-radius: 16px; padding: 16px; margin-bottom: 14px; border: 1px solid #334155; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 12px; font-size: 15px; font-weight: 700; border: none; cursor: pointer; text-decoration: none; width: 100%; }
+    .btn-primary { background: #059669; color: #fff; }
+    .btn-blue { background: #2563EB; color: #fff; }
+    .btn-amber { background: #D97706; color: #fff; }
+    .btn-outline { background: #0F172A; color: #F8FAFC; border: 1.5px solid #475569; }
+    .btn-sm { width: auto; padding: 7px 12px; font-size: 13px; border-radius: 9px; }
+    .label { display: block; font-size: 13.5px; font-weight: 700; color: #CBD5E1; margin: 10px 0 5px; }
+    .input { width: 100%; padding: 11px 13px; border-radius: 11px; border: 1.5px solid #475569; font-size: 15px; background: #0F172A; color: #fff; }
+    .memo-box { background: #0F172A; border: 1.5px solid #334155; border-radius: 13px; padding: 13px; margin: 10px 0; }
+    .memo-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 4px 0; color: #CBD5E1; }
+    .memo-total { border-top: 1px dashed #475569; margin-top: 6px; padding-top: 7px; font-weight: 700; font-size: 16px; color: #34D399; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: rgba(16,185,129,0.2); color: #34D399; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div>
+      <h1>যাত্রাসাথী পার্টনার ১.২ (iOS)</h1>
+      <div class="sub">সাথী অ্যাপ • মোবাইল ডাটা ও Wi-Fi সচল</div>
+    </div>
+    <button id="logoutBtn" class="btn btn-sm btn-outline hidden" onclick="doLogout()">লগআউট</button>
+  </div>
+
+  <div class="container">
+    <!-- AUTH VIEW -->
+    <div id="authView" class="card">
+      <h2 style="font-size:18px;margin-bottom:6px;">সাথী / পার্টনার লগইন</h2>
+      <p style="font-size:13px;color:#94A3B8;margin-bottom:12px;">আপনার পার্টনার মোবাইল নম্বর ও পাসওয়ার্ড দিন:</p>
+      <div id="regFields" class="hidden">
+        <label class="label">সাথীর পূর্ণ নাম</label>
+        <input id="authName" class="input" placeholder="আপনার নাম" />
+      </div>
+      <label class="label">মোবাইল নম্বর (অথবা ইমেইল)</label>
+      <input id="authPhone" class="input" placeholder="017XXXXXXXX" />
+      <label class="label">পাসওয়ার্ড</label>
+      <input id="authPass" type="password" class="input" placeholder="******" />
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-blue" onclick="handleAuth()" id="authSubmitBtn">লগইন করুন</button>
+        <button class="btn btn-outline" onclick="toggleAuthMode()" id="authToggleBtn">নতুন সাথী অ্যাকাউন্ট খুলুন</button>
+      </div>
+      <div id="authMsg" style="margin-top:10px;font-size:13px;color:#F87171;font-weight:600;"></div>
+    </div>
+
+    <!-- COMMISSION LOCK VIEW -->
+    <div id="lockView" class="card hidden" style="border-color:#EF4444;">
+      <h2 style="font-size:18px;color:#F87171;margin-bottom:6px;">বকেয়া প্ল্যাটফর্ম কমিশন পরিশোধ করুন</h2>
+      <p style="font-size:13.5px;color:#CBD5E1;line-height:1.45;">আপনার সর্বশেষ সম্পন্ন ট্রিপের কোম্পানি কমিশন বকেয়া থাকায় নতুন ট্রিপ রিসিভ সাময়িক লক আছে।</p>
+      <div class="memo-box">
+        <div class="memo-row"><span>বকেয়া কমিশন পরিমাণ:</span><strong id="lockDueVal" style="color:#F87171;font-size:16px;">৳০</strong></div>
+        <div class="memo-row"><span>বিকাশ/নগদ নম্বর:</span><strong>01937694079</strong></div>
+      </div>
+      <label class="label">কমিশন পাঠানোর TrxID লিখুন</label>
+      <input id="commTrxInput" class="input" placeholder="যেমন: 8N7A6B5C" />
+      <button class="btn btn-primary" style="margin-top:12px;" onclick="submitCommissionTrx()">TrxID জমা দিয়ে আনলক করুন</button>
+    </div>
+
+    <!-- ACTIVE TRIP VIEW -->
+    <div id="activeView" class="card hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h2 style="font-size:18px;">চলমান অ্যাসাইনমেন্ট</h2>
+        <span id="activeBadge" class="badge">ACCEPTED</span>
+      </div>
+      <div id="activePassenger" style="font-size:16px;font-weight:700;color:#fff;"></div>
+      <div id="activePhone" style="font-size:13.5px;color:#38BDF8;margin-top:3px;"></div>
+      <div id="activeDoc" style="font-size:13px;color:#34D399;font-weight:700;margin-top:4px;"></div>
+      <div id="activeRoute" style="font-size:13.5px;color:#CBD5E1;margin-top:6px;"></div>
+      <div id="activeLockAlert" class="hidden" style="margin-top:8px;padding:8px 10px;background:rgba(217,119,6,0.2);border:1px solid #F59E0B;border-radius:10px;font-size:12.5px;color:#FDE68A;">
+        কাস্টমার কাজ শেষ হিসেবে টাইমার লক করেছেন (WORK_DONE_LOCKED)।
+      </div>
+
+      <div class="memo-box">
+        <div style="font-weight:700;font-size:14px;color:#fff;margin-bottom:6px;">অফিসিয়াল ডিজিটাল ক্যাশ মেমো</div>
+        <div class="memo-row"><span>মূল প্যাকেজ ভাড়া:</span><strong id="pMemoBase">৳০</strong></div>
+        <div class="memo-row"><span>সমন্বয়:</span><strong id="pMemoAdj">৳০</strong></div>
+        <div class="memo-row"><span>মোট চূড়ান্ত বিল:</span><strong id="pMemoTotal">৳০</strong></div>
+        <div class="memo-row"><span>অনলাইন অগ্রিম জমা:</span><strong id="pMemoAdv">-৳০</strong></div>
+        <div class="memo-row memo-total"><span>কাস্টমার থেকে ক্যাশ নেবেন:</span><span id="pMemoCash">৳০</span></div>
+      </div>
+
+      <div id="otpActionBox" style="margin-top:10px;">
+        <label class="label" id="otpPromptLabel">কাস্টমারের ৪-ডিজিট Start OTP দিন</label>
+        <input id="otpInput" class="input" placeholder="4-Digit OTP" maxlength="4" />
+        <button class="btn btn-primary" style="margin-top:10px;" onclick="verifyTripOtp()" id="otpActionBtn">ট্রিপ শুরু করুন</button>
+      </div>
+    </div>
+
+    <!-- PENDING RADAR VIEW -->
+    <div id="radarView" class="card hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <h2 style="font-size:18px;">নতুন ট্রিপ রিকোয়েস্ট রাডার</h2>
+        <button class="btn btn-sm btn-outline" onclick="loadPartnerState()">রিফ্রেশ</button>
+      </div>
+      <div id="pendingList" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+  </div>
+
+<script>
+const sb = supabase.createClient("https://ybvvpnmcoygwkfanafkd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlidnZwbm1jb3lnd2tmYW5hZmtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5ODU3NTksImV4cCI6MjEwMjU2MTc1OX0.NX00YxSGkXpBxecl4i6oMZqFWmPQUCpXPv4cS7oWrlM");
+
+let isRegister = false;
+let currentUser = null;
+let partnerProfile = null;
+let activeTrip = null;
+let lockedTrip = null;
+
+function normEmail(v) {
+  v = v.trim();
+  if (v.includes('@')) return v;
+  return v.replace(/[^0-9]/g, '') + '@jatrasathi.app';
+}
+
+function toggleAuthMode() {
+  isRegister = !isRegister;
+  document.getElementById('regFields').classList.toggle('hidden', !isRegister);
+  document.getElementById('authSubmitBtn').innerText = isRegister ? 'সাথী রেজিস্ট্রেশন করুন' : 'লগইন করুন';
+  document.getElementById('authToggleBtn').innerText = isRegister ? 'আগের অ্যাকাউন্টে লগইন করুন' : 'নতুন সাথী অ্যাকাউন্ট খুলুন';
+}
+
+async function handleAuth() {
+  const phone = document.getElementById('authPhone').value.trim();
+  const pass = document.getElementById('authPass').value.trim();
+  const name = document.getElementById('authName').value.trim();
+  const msg = document.getElementById('authMsg');
+  msg.innerText = 'লোড হচ্ছে...';
+  try {
+    const email = normEmail(phone);
+    if (isRegister) {
+      const { data, error } = await sb.auth.signUp({ email, password: pass });
+      if (error) throw error;
+      if (data.user) {
+        await sb.from('profiles').upsert({ id: data.user.id, name: name || 'যাত্রাসাথী পার্টনার', phone, role: 'companion', is_companion: true });
+      }
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+    }
+    msg.innerText = '';
+    checkSession();
+  } catch (e) {
+    msg.innerText = 'ত্রুটি: ' + (e.message || e);
+  }
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  location.reload();
+}
+
+function parseMeta(dropoff, price) {
+  const parts = (dropoff || '').split('|').map(s => s.trim());
+  const m = { passenger: 'গ্রাহক', phone: '', doc: '', dest: '', base: 0, adv: 0, adj: 0, startOtp: '', endOtp: '', cleared: (dropoff||'').includes('COMMISSION_CLEARED'), locked: (dropoff||'').includes('WORK_DONE_LOCKED') };
+  parts.forEach(p => {
+    if (p.startsWith('যাত্রী:')) m.passenger = p.replace('যাত্রী:', '').trim();
+    if (p.startsWith('জরুরি:')) m.phone = p.replace('জরুরি:', '').trim();
+    if (p.startsWith('ডকুমেন্ট:')) m.doc = p.replace('ডকুমেন্ট:', '').trim();
+    if (p.startsWith('গন্তব্য:')) m.dest = p.replace('গন্তব্য:', '').trim();
+    if (p.startsWith('মূলভাড়া:')) m.base = parseInt(p.replace('মূলভাড়া:', '').trim()) || 0;
+    if (p.startsWith('অগ্রিম:')) m.adv = parseInt(p.replace('অগ্রিম:', '').trim()) || 0;
+    if (p.startsWith('টাইমঅ্যাডজাস্ট:')) m.adj = parseInt(p.replace('টাইমঅ্যাডজাস্ট:', '').trim()) || 0;
+    if (p.startsWith('OTP:')) m.startOtp = p.replace('OTP:', '').trim();
+    if (p.startsWith('EndOTP:')) m.endOtp = p.replace('EndOTP:', '').trim();
+  });
+  if (!m.base) m.base = price - m.adj;
+  if (!m.adv) m.adv = Math.round(m.base * 0.30);
+  return m;
+}
+
+async function loadPartnerState() {
+  if (!currentUser) return;
+  const { data: myTrips } = await sb.from('trips')
+    .select('*')
+    .eq('companion_id', currentUser.id)
+    .order('created_at', { ascending: false })
+    .limit(15);
+
+  const running = (myTrips || []).find(t => t.status === 'accepted' || t.status === 'in_progress');
+  const unpaid = (myTrips || []).find(t => {
+    if (t.status !== 'completed') return false;
+    const m = parseMeta(t.dropoff_location, t.price);
+    return !m.cleared;
+  });
+
+  document.getElementById('lockView').classList.add('hidden');
+  document.getElementById('activeView').classList.add('hidden');
+  document.getElementById('radarView').classList.add('hidden');
+
+  if (running) {
+    activeTrip = running;
+    const m = parseMeta(running.dropoff_location, running.price);
+    document.getElementById('activeView').classList.remove('hidden');
+    document.getElementById('activeBadge').innerText = running.status.toUpperCase();
+    document.getElementById('activePassenger').innerText = 'যাত্রী: ' + m.passenger;
+    document.getElementById('activePhone').innerHTML = `ফোন: <a href="tel:${m.phone}" style="color:#38BDF8;">${m.phone}</a>`;
+    document.getElementById('activeDoc').innerText = m.doc ? ('ভেরিফায়েড ডকুমেন্ট: ' + m.doc) : '';
+    document.getElementById('activeRoute').innerText = `পিকআপ: ${running.pickup_location} → গন্তব্য: ${m.dest}`;
+    document.getElementById('activeLockAlert').classList.toggle('hidden', !m.locked);
+    document.getElementById('pMemoBase').innerText = '৳' + m.base;
+    document.getElementById('pMemoAdj').innerText = (m.adj >= 0 ? '+৳' : '-৳') + Math.abs(m.adj);
+    document.getElementById('pMemoTotal').innerText = '৳' + running.price;
+    document.getElementById('pMemoAdv').innerText = '-৳' + m.adv;
+    document.getElementById('pMemoCash').innerText = '৳' + Math.max(0, running.price - m.adv);
+    const isStart = running.status === 'accepted';
+    document.getElementById('otpPromptLabel').innerText = isStart ? 'কাস্টমারের ৪-ডিজিট Start OTP দিন:' : 'কাস্টমারের ৪-ডিজিট End OTP দিয়ে ট্রিপ শেষ করুন:';
+    document.getElementById('otpActionBtn').innerText = isStart ? 'Start OTP মিলিয়ে ট্রিপ শুরু করুন' : 'End OTP মিলিয়ে ট্রিপ সম্পন্ন করুন';
+    return;
+  }
+
+  if (unpaid) {
+    lockedTrip = unpaid;
+    const due = Math.round((unpaid.price || 0) * 0.70);
+    document.getElementById('lockView').classList.remove('hidden');
+    document.getElementById('lockDueVal').innerText = '৳' + due;
+    return;
+  }
+
+  document.getElementById('radarView').classList.remove('hidden');
+  const { data: pending } = await sb.from('trips')
+    .select('*')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  const list = document.getElementById('pendingList');
+  if (!pending || pending.length === 0) {
+    list.innerHTML = '<div style="padding:18px;text-align:center;color:#94A3B8;">এই মুহূর্তে নতুন কোনো পেন্ডিং ট্রিপ নেই।</div>';
+  } else {
+    list.innerHTML = pending.map(t => {
+      const m = parseMeta(t.dropoff_location, t.price);
+      const cash = Math.max(0, t.price - m.adv);
+      return `
+        <div style="background:#0F172A;border:1px solid #334155;border-radius:13px;padding:13px;">
+          <div style="display:flex;justify-content:space-between;font-weight:700;color:#34D399;">
+            <span>${t.service_type.toUpperCase()}</span>
+            <span>মোট বিল: ৳${t.price} (ক্যাশ: ৳${cash})</span>
+          </div>
+          <div style="font-size:13.5px;color:#fff;margin-top:5px;">পিকআপ: ${t.pickup_location}</div>
+          <div style="font-size:13px;color:#94A3B8;">গন্তব্য: ${m.dest} • যাত্রী: ${m.passenger}</div>
+          ${m.doc ? `<div style="font-size:12px;color:#38BDF8;margin-top:3px;">ডকুমেন্ট: ${m.doc}</div>` : ''}
+          <button class="btn btn-primary" style="margin-top:10px;padding:9px;" onclick="acceptTrip('${t.id}')">ট্রিপটি গ্রহণ করুন (Accept)</button>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+async function acceptTrip(id) {
+  const { error } = await sb.from('trips').update({ status: 'accepted', companion_id: currentUser.id }).eq('id', id);
+  if (error) return alert('ত্রুটি: ' + error.message);
+  loadPartnerState();
+}
+
+async function verifyTripOtp() {
+  if (!activeTrip) return;
+  const code = document.getElementById('otpInput').value.trim();
+  const m = parseMeta(activeTrip.dropoff_location, activeTrip.price);
+  if (activeTrip.status === 'accepted') {
+    const expected = activeTrip.start_otp_code || m.startOtp;
+    if (code !== expected) return alert('Start OTP মেলেনি!');
+    await sb.from('trips').update({ status: 'in_progress' }).eq('id', activeTrip.id);
+  } else {
+    if (code !== m.endOtp) return alert('End OTP মেলেনি!');
+    await sb.from('trips').update({ status: 'completed' }).eq('id', activeTrip.id);
+  }
+  document.getElementById('otpInput').value = '';
+  loadPartnerState();
+}
+
+async function submitCommissionTrx() {
+  if (!lockedTrip) return;
+  const trx = document.getElementById('commTrxInput').value.trim().toUpperCase();
+  if (trx.length < 4) return alert('সঠিক TrxID দিন।');
+  const d = (lockedTrip.dropoff_location || '') + ` | TrxID: ${trx} | COMMISSION_CLEARED`;
+  await sb.from('trips').update({ dropoff_location: d }).eq('id', lockedTrip.id);
+  loadPartnerState();
+}
+
+async function checkSession() {
+  const { data } = await sb.auth.getSession();
+  if (data?.session?.user) {
+    currentUser = data.session.user;
+    document.getElementById('authView').classList.add('hidden');
+    document.getElementById('logoutBtn').classList.remove('hidden');
+    loadPartnerState();
+    setInterval(loadPartnerState, 6000);
+  }
+}
+checkSession();
+</script>
+</body>
+</html>

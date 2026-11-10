@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="যাত্রাসাথী" />
+  <title>যাত্রাসাথী ১.২ — কাস্টমার অ্যাপ (iOS)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Hind Siliguri', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: #F1F5F9; color: #0F172A; min-height: 100vh; padding-bottom: 40px; }
+    .topbar { background: #064E3B; color: #fff; padding: calc(env(safe-area-inset-top, 16px) + 12px) 16px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+    .topbar h1 { font-size: 19px; font-weight: 700; }
+    .topbar .sub { font-size: 12px; color: #A7F3D0; }
+    .container { max-width: 500px; margin: 0 auto; padding: 14px; }
+    .card { background: #fff; border-radius: 16px; padding: 16px; margin-bottom: 14px; border: 1px solid #E2E8F0; box-shadow: 0 2px 8px rgba(15,23,42,0.04); }
+    .helpline { background: #EFF6FF; border: 1.5px solid #93C5FD; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .helpline-text { font-size: 13px; color: #1E3A8A; font-weight: 600; line-height: 1.35; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 12px; font-size: 15px; font-weight: 700; border: none; cursor: pointer; text-decoration: none; width: 100%; transition: opacity 0.15s; }
+    .btn:active { opacity: 0.85; }
+    .btn-primary { background: #059669; color: #fff; }
+    .btn-blue { background: #2563EB; color: #fff; }
+    .btn-amber { background: #D97706; color: #fff; }
+    .btn-danger { background: #DC2626; color: #fff; }
+    .btn-outline { background: #F8FAFC; color: #0F172A; border: 1.5px solid #CBD5E1; }
+    .btn-sm { width: auto; padding: 8px 12px; font-size: 13px; border-radius: 10px; white-space: nowrap; }
+    .label { display: block; font-size: 13.5px; font-weight: 700; color: #334155; margin: 10px 0 5px; }
+    .input, select { width: 100%; padding: 11px 13px; border-radius: 11px; border: 1.5px solid #CBD5E1; font-size: 15px; background: #fff; color: #0F172A; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .svc-card { border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 11px; cursor: pointer; background: #fff; text-align: left; }
+    .svc-card.active { border-color: #059669; background: #ECFDF5; }
+    .svc-title { font-size: 14.5px; font-weight: 700; color: #0F172A; }
+    .svc-price { font-size: 12.5px; color: #059669; font-weight: 700; margin-top: 2px; }
+    .rules-box { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 12px; font-size: 12.5px; color: #78350F; line-height: 1.5; margin-top: 12px; }
+    .memo-box { background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 13px; padding: 13px; margin: 10px 0; }
+    .memo-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 4px 0; }
+    .memo-total { border-top: 1px dashed #94A3B8; margin-top: 6px; padding-top: 7px; font-weight: 700; font-size: 15.5px; color: #059669; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: #DCFCE7; color: #166534; }
+    .otp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+    .otp-box { background: #ECFDF5; border: 1.5px solid #6EE7B7; border-radius: 12px; padding: 10px; text-align: center; }
+    .otp-code { font-size: 22px; font-weight: 800; color: #065F46; letter-spacing: 2px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div>
+      <h1>যাত্রাসাথী ১.২ (iOS Customer)</h1>
+      <div class="sub">মোবাইল ডাটা ও Wi-Fi সব নেটওয়ার্কে সচল</div>
+    </div>
+    <button id="logoutBtn" class="btn btn-sm btn-outline hidden" onclick="doLogout()">লগআউট</button>
+  </div>
+
+  <div class="container">
+    <div class="helpline">
+      <div class="helpline-text">ফরম পূরণ করতে অসুবিধা হচ্ছে? ১ ক্লিকে কল করুন, অফিস সাপোর্ট টিম বুকিং করে দেবে।</div>
+      <a href="tel:01937694079" class="btn btn-blue btn-sm">কল করুন</a>
+    </div>
+
+    <!-- AUTH VIEW -->
+    <div id="authView" class="card">
+      <h2 style="font-size:18px;margin-bottom:6px;">কাস্টমার লগইন / রেজিস্ট্রেশন</h2>
+      <p style="font-size:13px;color:#64748B;margin-bottom:12px;">আপনার মোবাইল নম্বর ও পাসওয়ার্ড দিয়ে প্রবেশ করুন:</p>
+      <div id="regFields" class="hidden">
+        <label class="label">আপনার পূর্ণ নাম</label>
+        <input id="authName" class="input" placeholder="যেমন: মো: করিম উদ্দিন" />
+      </div>
+      <label class="label">মোবাইল নম্বর (১১ ডিজিট বা ইমেইল)</label>
+      <input id="authPhone" class="input" placeholder="017XXXXXXXX" />
+      <label class="label">পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</label>
+      <input id="authPass" type="password" class="input" placeholder="******" />
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-primary" onclick="handleAuth()" id="authSubmitBtn">লগইন করুন</button>
+        <button class="btn btn-outline" onclick="toggleAuthMode()" id="authToggleBtn">নতুন অ্যাকাউন্ট খুলুন</button>
+      </div>
+      <div id="authMsg" style="margin-top:10px;font-size:13px;color:#DC2626;font-weight:600;"></div>
+    </div>
+
+    <!-- ACTIVE TRIP VIEW -->
+    <div id="activeTripView" class="card hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h2 style="font-size:18px;">আপনার চলমান বুকিং</h2>
+        <span id="tripStatusBadge" class="badge">PENDING</span>
+      </div>
+      <div id="tripServiceTitle" style="font-size:16px;font-weight:700;color:#059669;"></div>
+      <div id="tripLocations" style="font-size:13.5px;color:#334155;margin-top:4px;"></div>
+      <div id="companionBox" style="margin-top:10px;padding:10px;background:#EFF6FF;border-radius:10px;font-size:13.5px;"></div>
+
+      <div class="otp-grid">
+        <div class="otp-box">
+          <div style="font-size:12px;color:#047857;font-weight:700;">শুরু করার Start OTP</div>
+          <div id="startOtpVal" class="otp-code">----</div>
+        </div>
+        <div class="otp-box" style="background:#EFF6FF;border-color:#93C5FD;">
+          <div style="font-size:12px;color:#1D4ED8;font-weight:700;">শেষ করার End OTP</div>
+          <div id="endOtpVal" class="otp-code" style="color:#1E3A8A;">----</div>
+        </div>
+      </div>
+
+      <div class="memo-box">
+        <div style="font-weight:700;font-size:14px;margin-bottom:6px;color:#0F172A;">অফিসিয়াল ডিজিটাল ক্যাশ মেমো</div>
+        <div class="memo-row"><span>মূল প্যাকেজ ভাড়া:</span><strong id="memoBase">৳০</strong></div>
+        <div class="memo-row"><span>সমন্বয় (ওভারটাইম/দিন/রোগী):</span><strong id="memoAdj">৳০</strong></div>
+        <div id="memoAdjNote" style="font-size:12px;color:#D97706;font-weight:600;"></div>
+        <div class="memo-row"><span>মোট চূড়ান্ত বিল:</span><strong id="memoTotal">৳০</strong></div>
+        <div class="memo-row"><span>অনলাইন অগ্রিম জমা:</span><strong id="memoAdv" style="color:#2563EB;">-৳০</strong></div>
+        <div class="memo-row memo-total"><span>সাথীকে ক্যাশ প্রদেয়:</span><span id="memoDue">৳০</span></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+        <button id="lockTimerBtn" class="btn btn-amber" onclick="lockWorkDone()">কাজ শেষ (টাইমার লক করুন)</button>
+        <div style="font-size:13px;font-weight:700;color:#334155;margin-top:6px;">সময় / দিন / রোগী পরিবর্তন করুন:</div>
+        <div class="grid-2">
+          <button class="btn btn-outline btn-sm" onclick="modifyTrip(150, '+১ ঘণ্টা ওভারটাইম')">+১ ঘণ্টা (+৳১৫০)</button>
+          <button class="btn btn-outline btn-sm" onclick="modifyTrip(1200, '+১ দিন বৃদ্ধি')">+১ দিন (+৳১,২০০)</button>
+          <button class="btn btn-outline btn-sm" onclick="modifyTrip(-840, '-১ দিন আর্লি রিটার্ন')">-১ দিন (-৳৮৪০)</button>
+          <button class="btn btn-outline btn-sm" onclick="modifyTrip(300, '+২য় রোগী সেবা')">+২য় রোগী (+৳৩০০)</button>
+        </div>
+        <button class="btn btn-danger" style="margin-top:6px;" onclick="cancelTrip()">বুকিং বাতিল করুন</button>
+      </div>
+    </div>
+
+    <!-- BOOKING FORM VIEW -->
+    <div id="bookingView" class="card hidden">
+      <h2 style="font-size:18px;margin-bottom:10px;">নতুন সেবা বুকিং করুন</h2>
+      <div class="grid-2" id="serviceGrid"></div>
+
+      <div id="subOptionBox" style="margin-top:12px;"></div>
+
+      <label class="label">যাত্রীর নাম</label>
+      <input id="pName" class="input" placeholder="রোগী বা যাত্রীর নাম" />
+
+      <label class="label">জরুরি যোগাযোগের মোবাইল নম্বর</label>
+      <input id="pPhone" class="input" placeholder="01XXXXXXXXX" />
+
+      <div id="kycBox" class="hidden">
+        <label class="label" style="color:#059669;">পরিচয়পত্র নম্বর (NID / জন্ম নিবন্ধন / পাসপোর্ট) *</label>
+        <input id="pDoc" class="input" placeholder="নিরাপত্তার জন্য নম্বরটি লিখুন" />
+      </div>
+
+      <label class="label">পিকআপ লোকেশন (কোথা থেকে সাথী যুক্ত হবে)</label>
+      <input id="pickupLoc" class="input" placeholder="যেমন: ধানমন্ডি ৩২ / এয়ারপোর্ট টার্মিনাল ১" />
+
+      <label class="label">গন্তব্য (হাসপাতাল / বাসার ঠিকানা)</label>
+      <input id="dropLoc" class="input" placeholder="যেমন: স্কয়ার হাসপাতাল / উত্তরা সেক্টর ৭" />
+
+      <div class="memo-box" style="margin-top:14px;background:#ECFDF5;border-color:#6EE7B7;">
+        <div class="memo-row"><span>মোট প্যাকেজ ভাড়া:</span><strong id="calcTotal">৳৮০০</strong></div>
+        <div class="memo-row"><span>এখন বিকাশ/নগদে অগ্রিম জমা:</span><strong id="calcAdv" style="color:#059669;">৳২৪০</strong></div>
+        <div class="memo-row"><span>কাজ শেষে সাথীকে ক্যাশ দেবেন:</span><strong id="calcDue">৳৫৬০</strong></div>
+      </div>
+
+      <div style="background:#EFF6FF;border:1px solid #93C5FD;border-radius:11px;padding:10px;font-size:13px;margin-top:10px;">
+        অগ্রিম পাঠানোর নম্বর (বিকাশ/নগদ Send Money): <strong>01937694079</strong>
+      </div>
+
+      <label class="label">বিকাশ/নগদ TrxID (অথবা শেষ ৪ ডিজিট)</label>
+      <input id="trxId" class="input" placeholder="যেমন: AB12CD34" />
+
+      <div class="rules-box">
+        <strong>স্বচ্ছ ও ঝামেলা-মুক্ত সেবার নিয়মাবলী:</strong><br/>
+        • নির্ধারিত সময়ের পর <strong>৩০ মিনিট ফ্রি গ্রেস পিরিয়ড</strong> থাকবে। কাস্টমার বা অফিসের অনুমোদন ছাড়া সাথী নিজে থেকে ওভারটাইম যোগ করতে পারবে না।<br/>
+        • সাথে থাকা সুস্থ আত্মীয় বা সন্তান <strong>১০০% ফ্রি</strong> (সাথীর সাহায্য ছাড়া তিনি নিজে ডাক্তার দেখালেও কোনো চার্জ নেই)।
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:14px;" onclick="submitBooking()">বুকিং কনফার্ম করুন</button>
+    </div>
+  </div>
+
+<script>
+const sb = supabase.createClient("https://ybvvpnmcoygwkfanafkd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlidnZwbm1jb3lnd2tmYW5hZmtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5ODU3NTksImV4cCI6MjEwMjU2MTc1OX0.NX00YxSGkXpBxecl4i6oMZqFWmPQUCpXPv4cS7oWrlM");
+
+const SERVICES = [
+  { id: 'hospital', title: 'হাসপাতাল সহায়তা', base: 800, kyc: false, advPct: 0.30 },
+  { id: 'airport', title: 'এয়ারপোর্ট সহায়তা', base: 1500, kyc: false, advPct: 0.30 },
+  { id: 'station', title: 'বাস/ট্রেন/লঞ্চ স্টেশন', base: 600, kyc: false, advPct: 0.30 },
+  { id: 'intercity', title: 'আন্তঃজেলা ভ্রমণ', base: 1800, kyc: true, advPct: 0.30 },
+  { id: 'general', title: 'দৈনন্দিন সেবা (ডে-কেয়ার)', base: 800, kyc: true, advPct: 1.00 },
+  { id: 'abroad-treatment', title: 'ভারতে চিকিৎসা সহায়তা', base: 10000, kyc: true, advPct: 0.30 }
+];
+
+let isRegister = false;
+let currentUser = null;
+let selectedSvc = SERVICES[0];
+let airportTier = 0; // 0, 300, 1000
+let daysCount = 1;
+let activeTrip = null;
+
+function normEmail(v) {
+  v = v.trim();
+  if (v.includes('@')) return v;
+  return v.replace(/[^0-9]/g, '') + '@jatrasathi.app';
+}
+
+function toggleAuthMode() {
+  isRegister = !isRegister;
+  document.getElementById('regFields').classList.toggle('hidden', !isRegister);
+  document.getElementById('authSubmitBtn').innerText = isRegister ? 'রেজিস্ট্রেশন করুন' : 'লগইন করুন';
+  document.getElementById('authToggleBtn').innerText = isRegister ? 'আগের অ্যাকাউন্টে লগইন করুন' : 'নতুন অ্যাকাউন্ট খুলুন';
+}
+
+async function handleAuth() {
+  const phone = document.getElementById('authPhone').value.trim();
+  const pass = document.getElementById('authPass').value.trim();
+  const name = document.getElementById('authName').value.trim();
+  const msg = document.getElementById('authMsg');
+  msg.innerText = 'লোড হচ্ছে...';
+  try {
+    const email = normEmail(phone);
+    if (isRegister) {
+      const { data, error } = await sb.auth.signUp({ email, password: pass });
+      if (error) throw error;
+      if (data.user) {
+        await sb.from('profiles').upsert({ id: data.user.id, name: name || 'গ্রাহক', phone, role: 'client' });
+      }
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+    }
+    msg.innerText = '';
+    checkSession();
+  } catch (e) {
+    msg.innerText = 'ত্রুটি: ' + (e.message || e);
+  }
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  location.reload();
+}
+
+function renderServices() {
+  const g = document.getElementById('serviceGrid');
+  g.innerHTML = SERVICES.map(s => `
+    <div class="svc-card ${s.id === selectedSvc.id ? 'active' : ''}" onclick="selectService('${s.id}')">
+      <div class="svc-title">${s.title}</div>
+      <div class="svc-price">৳${s.base} থেকে শুরু</div>
+    </div>
+  `).join('');
+  document.getElementById('kycBox').classList.toggle('hidden', !selectedSvc.kyc);
+  const sub = document.getElementById('subOptionBox');
+  if (selectedSvc.id === 'airport') {
+    sub.innerHTML = `
+      <label class="label">এয়ারপোর্ট ড্রপ-অফ অপশন</label>
+      <select class="input" onchange="airportTier=parseInt(this.value);updateCalc()">
+        <option value="0" ${airportTier===0?'selected':''}>শুধু টার্মিনালে গাড়ি তুলে দেওয়া (৳১,৫০০)</option>
+        <option value="300" ${airportTier===300?'selected':''}>ঢাকা সিটিতে বাসায় ড্রপ (+৳৩০০)</option>
+        <option value="1000" ${airportTier===1000?'selected':''}>ঢাকার বাইরে / গ্রামে ড্রপ (+৳১,০০০)</option>
+      </select>`;
+  } else if (selectedSvc.id === 'intercity' || selectedSvc.id === 'abroad-treatment') {
+    sub.innerHTML = `
+      <label class="label">কত দিনের প্যাকেজ?</label>
+      <select class="input" onchange="daysCount=parseInt(this.value);updateCalc()">
+        <option value="1" ${daysCount===1?'selected':''}>১ দিন</option>
+        <option value="2" ${daysCount===2?'selected':''}>২ দিন</option>
+        <option value="3" ${daysCount===3?'selected':''}>৩ দিন</option>
+        <option value="5" ${daysCount===5?'selected':''}>৫ দিন</option>
+        <option value="7" ${daysCount===7?'selected':''}>৭ দিন</option>
+      </select>`;
+  } else {
+    sub.innerHTML = '';
+  }
+  updateCalc();
+}
+
+function selectService(id) {
+  selectedSvc = SERVICES.find(x => x.id === id) || SERVICES[0];
+  airportTier = 0;
+  daysCount = 1;
+  renderServices();
+}
+
+function getPrices() {
+  let total = selectedSvc.base;
+  if (selectedSvc.id === 'airport') total += airportTier;
+  if (selectedSvc.id === 'intercity') total = 1800 * daysCount;
+  if (selectedSvc.id === 'abroad-treatment' && daysCount > 3) total = 10000 + (daysCount - 3) * 2500;
+  const adv = Math.round(total * selectedSvc.advPct);
+  const due = total - adv;
+  return { total, adv, due };
+}
+
+function updateCalc() {
+  const { total, adv, due } = getPrices();
+  document.getElementById('calcTotal').innerText = '৳' + total;
+  document.getElementById('calcAdv').innerText = '৳' + adv;
+  document.getElementById('calcDue').innerText = '৳' + due;
+}
+
+async function submitBooking() {
+  const pName = document.getElementById('pName').value.trim();
+  const pPhone = document.getElementById('pPhone').value.trim();
+  const pDoc = document.getElementById('pDoc').value.trim();
+  const pickup = document.getElementById('pickupLoc').value.trim();
+  const drop = document.getElementById('dropLoc').value.trim();
+  const trx = document.getElementById('trxId').value.trim().toUpperCase();
+
+  if (!pName || !pPhone || !pickup || !drop) return alert('অনগ্রহ করে নাম, ফোন, পিকআপ ও গন্তব্য লিখুন।');
+  if (selectedSvc.kyc && !pDoc) return alert('এই সেবার নিরাপত্তার জন্য NID / জন্ম নিবন্ধন বা পাসপোর্ট নম্বর আবশ্যক।');
+  if (trx.length < 4) return alert('অনুগ্রহ করে অগ্রিম পেমেন্টের সঠিক TrxID দিন।');
+
+  const { total, adv } = getPrices();
+  const startOtp = String(Math.floor(1000 + Math.random() * 9000));
+  const endOtp = String(Math.floor(1000 + Math.random() * 9000));
+  let meta = `গন্তব্য: ${drop} | যাত্রী: ${pName} | জরুরি: ${pPhone} | মূলভাড়া: ${total} | অগ্রিম: ${adv} | OTP: ${startOtp} | EndOTP: ${endOtp} | ADV_TRX: ${trx} | METHOD: bkash`;
+  if (pDoc) meta += ` | ডকুমেন্ট: ${pDoc}`;
+
+  const { error } = await sb.from('trips').insert({
+    client_id: currentUser.id,
+    service_type: selectedSvc.id,
+    pickup_location: pickup,
+    dropoff_location: meta,
+    scheduled_time: new Date().toISOString(),
+    status: 'pending',
+    price: total,
+    start_otp_code: startOtp
+  });
+  if (error) return alert('বুকিং ব্যর্থ: ' + error.message);
+  loadActiveTrip();
+}
+
+function parseMeta(dropoff, price) {
+  const parts = (dropoff || '').split('|').map(s => s.trim());
+  const m = { dest: '', base: 0, adv: 0, adj: 0, adjNote: '', startOtp: '----', endOtp: '----', locked: (dropoff||'').includes('WORK_DONE_LOCKED') };
+  parts.forEach(p => {
+    if (p.startsWith('গন্তব্য:')) m.dest = p.replace('গন্তব্য:', '').trim();
+    if (p.startsWith('মূলভাড়া:')) m.base = parseInt(p.replace('মূলভাড়া:', '').trim()) || 0;
+    if (p.startsWith('অগ্রিম:')) m.adv = parseInt(p.replace('অগ্রিম:', '').trim()) || 0;
+    if (p.startsWith('টাইমঅ্যাডজাস্ট:')) m.adj = parseInt(p.replace('টাইমঅ্যাডজাস্ট:', '').trim()) || 0;
+    if (p.startsWith('অ্যাডজাস্ট_নোট:')) m.adjNote = p.replace('অ্যাডজাস্ট_নোট:', '').trim();
+    if (p.startsWith('OTP:')) m.startOtp = p.replace('OTP:', '').trim();
+    if (p.startsWith('EndOTP:')) m.endOtp = p.replace('EndOTP:', '').trim();
+  });
+  if (!m.base) m.base = price - m.adj;
+  if (!m.adv) m.adv = Math.round(m.base * 0.30);
+  return m;
+}
+
+async function loadActiveTrip() {
+  if (!currentUser) return;
+  const { data } = await sb.from('trips')
+    .select('*, companion:profiles!trips_companion_id_fkey(name, phone)')
+    .eq('client_id', currentUser.id)
+    .in('status', ['pending', 'accepted', 'in_progress'])
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  if (data && data.length > 0) {
+    activeTrip = data[0];
+    document.getElementById('bookingView').classList.add('hidden');
+    document.getElementById('activeTripView').classList.remove('hidden');
+    const m = parseMeta(activeTrip.dropoff_location, activeTrip.price);
+    document.getElementById('tripStatusBadge').innerText = activeTrip.status.toUpperCase();
+    document.getElementById('tripServiceTitle').innerText = (SERVICES.find(s=>s.id===activeTrip.service_type)?.title || activeTrip.service_type);
+    document.getElementById('tripLocations').innerText = `পিকআপ: ${activeTrip.pickup_location} → গন্তব্য: ${m.dest}`;
+    const comp = activeTrip.companion;
+    document.getElementById('companionBox').innerHTML = comp
+      ? `<strong>সাথী: ${comp.name}</strong> • ফোন: <a href="tel:${comp.phone}">${comp.phone}</a>`
+      : 'নিকটবর্তী ভেরিফায়েড সাথী খোঁজা হচ্ছে...';
+    document.getElementById('startOtpVal').innerText = activeTrip.start_otp_code || m.startOtp;
+    document.getElementById('endOtpVal').innerText = m.endOtp;
+    document.getElementById('memoBase').innerText = '৳' + m.base;
+    document.getElementById('memoAdj').innerText = (m.adj >= 0 ? '+৳' : '-৳') + Math.abs(m.adj);
+    document.getElementById('memoAdjNote').innerText = m.adjNote ? ('কারণ: ' + m.adjNote) : '';
+    document.getElementById('memoTotal').innerText = '৳' + activeTrip.price;
+    document.getElementById('memoAdv').innerText = '-৳' + m.adv;
+    document.getElementById('memoDue').innerText = '৳' + Math.max(0, activeTrip.price - m.adv);
+    const lockBtn = document.getElementById('lockTimerBtn');
+    lockBtn.innerText = m.locked ? 'টাইমার লক করা হয়েছে (WORK_DONE_LOCKED)' : 'কাজ শেষ (টাইমার লক করুন)';
+    lockBtn.disabled = m.locked;
+  } else {
+    activeTrip = null;
+    document.getElementById('activeTripView').classList.add('hidden');
+    document.getElementById('bookingView').classList.remove('hidden');
+    renderServices();
+  }
+}
+
+async function lockWorkDone() {
+  if (!activeTrip) return;
+  let d = activeTrip.dropoff_location || '';
+  if (!d.includes('WORK_DONE_LOCKED')) d += ' | WORK_DONE_LOCKED';
+  await sb.from('trips').update({ dropoff_location: d }).eq('id', activeTrip.id);
+  loadActiveTrip();
+}
+
+async function modifyTrip(delta, note) {
+  if (!activeTrip) return;
+  const newPrice = Math.max(0, (activeTrip.price || 0) + delta);
+  const m = parseMeta(activeTrip.dropoff_location, activeTrip.price);
+  const newAdj = m.adj + delta;
+  const newNote = m.adjNote ? (m.adjNote + ', ' + note) : note;
+  const parts = (activeTrip.dropoff_location || '').split('|').map(s=>s.trim()).filter(p => !p.startsWith('টাইমঅ্যাডজাস্ট:') && !p.startsWith('অ্যাডজাস্ট_নোট:'));
+  parts.push('টাইমঅ্যাডজাস্ট: ' + newAdj);
+  parts.push('অ্যাডজাস্ট_নোট: ' + newNote);
+  await sb.from('trips').update({ price: newPrice, dropoff_location: parts.join(' | ') }).eq('id', activeTrip.id);
+  loadActiveTrip();
+}
+
+async function cancelTrip() {
+  if (!activeTrip || !confirm('আপনি কি নিশ্চিতভাবে বুকিংটি বাতিল করতে চান?')) return;
+  await sb.from('trips').update({ status: 'cancelled' }).eq('id', activeTrip.id);
+  loadActiveTrip();
+}
+
+async function checkSession() {
+  const { data } = await sb.auth.getSession();
+  if (data?.session?.user) {
+    currentUser = data.session.user;
+    document.getElementById('authView').classList.add('hidden');
+    document.getElementById('logoutBtn').classList.remove('hidden');
+    loadActiveTrip();
+    setInterval(loadActiveTrip, 6000);
+  }
+}
+checkSession();
+</script>
+</body>
+</html>
